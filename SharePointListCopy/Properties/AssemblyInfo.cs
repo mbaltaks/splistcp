@@ -59,7 +59,7 @@ namespace SharePointListCopy
 {
 	class Rev
 	{
-		public string svnrev = "$Revision: 612 $";
+		public string svnrev = "$Revision$";
 		public Rev()
 		{
 			svnrev = svnrev.Replace("$Revision: ", "");
