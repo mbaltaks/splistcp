@@ -198,8 +198,8 @@ namespace SharePointListCopy
 				}
 			}
 			SharePointUserGroupWebService.UserGroup userService = new SharePointUserGroupWebService.UserGroup();
-			userService.Credentials = System.Net.CredentialCache.DefaultCredentials;
 			userService.Url = siteURL + "/_vti_bin/UserGroup.asmx";
+			userService.Credentials = System.Net.CredentialCache.DefaultCredentials;
 			XmlNode users = userService.GetUserCollectionFromSite();
 			String userQuery = "//*[@*]";
 			XmlNodeList userList = users.SelectNodes(userQuery);
@@ -280,8 +280,8 @@ namespace SharePointListCopy
 				sourceSiteURL = sourceSiteURL.Substring(0, sourceSiteURL.LastIndexOf('/'));
 			}
 			SharePointSiteDataWebService.SiteData siteService = new SharePointSiteDataWebService.SiteData();
-			siteService.Credentials = System.Net.CredentialCache.DefaultCredentials;
 			siteService.Url = sourceSiteURL + "/_vti_bin/SiteData.asmx";
+			siteService.Credentials = System.Net.CredentialCache.DefaultCredentials;
 			SharePointSiteDataWebService._sList[] lists;
 			siteService.GetListCollection(out lists);
 			foreach (SharePointSiteDataWebService._sList list in lists)

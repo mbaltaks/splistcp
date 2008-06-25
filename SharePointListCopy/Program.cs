@@ -124,10 +124,6 @@ namespace SharePointListCopy
 			{
 				listsSeparator = optionValues["--lists-separator"].ToString();
 			}
-			if (optionValues.ContainsKey("--lists-file"))
-			{
-				lists = GetLists(optionValues["--lists-file"].ToString(), listsSeparator);
-			}
 			avoidDuplicates = optionValues.ContainsKey("--avoid-duplicates");
 			string replacementsFile = "";
 			if (optionValues.ContainsKey("--replacements-file"))
@@ -146,9 +142,12 @@ namespace SharePointListCopy
 			}
 			if (optionValues.ContainsKey("--single-list"))
 			{
-				lists.Clear();
 				string[] listarg = { raw_source, raw_dest_site, raw_dest_path };
 				lists.Add(listarg);
+			}
+			else if (optionValues.ContainsKey("--lists-file"))
+			{
+				lists = GetLists(optionValues["--lists-file"].ToString(), listsSeparator);
 			}
 			else
 			{

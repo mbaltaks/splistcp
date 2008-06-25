@@ -164,6 +164,7 @@ namespace SharePointListCopy
 			}
 			if (newItem.hasAttachments)
 			{
+				listService.Credentials = System.Net.CredentialCache.DefaultCredentials;
 				XmlNode attachmentsNode = listService.GetAttachmentCollection(sourceListName,
 					newItem.attributes["ows_ID"].ToString());
 				foreach (XmlNode att in attachmentsNode)
