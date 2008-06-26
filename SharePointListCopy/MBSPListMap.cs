@@ -451,6 +451,13 @@ namespace SharePointListCopy
 					return;
 				}
 			}
+			if (destListType.Equals(SPListTemplateType.DiscussionBoard))
+			{
+				if (internalName.Equals("Ordering"))
+				{
+					return;
+				}
+			}
 
 			bool exists = ListFieldDisplayNameFound(list, displayName);
 			if (newList)
@@ -523,6 +530,8 @@ namespace SharePointListCopy
 					|| (internalName.Equals("ImageHeight"))
 					|| (internalName.Equals("Thumbnail"))
 					|| (internalName.Equals("Preview"))
+					|| (destListType.Equals(SPListTemplateType.DiscussionBoard)
+					&& (displayName.Equals("Posted By") && internalName.Equals("Author")))
 					);
 				if (!special && !newListFields.ContainsKey(displayName))
 				{
