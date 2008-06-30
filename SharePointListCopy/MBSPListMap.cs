@@ -471,12 +471,20 @@ namespace SharePointListCopy
 					f.Update(true);
 					exists = true;
 				}
-				if ((destListType.Equals(SPListTemplateType.DocumentLibrary)
+				if (
+					((destListType.Equals(SPListTemplateType.DocumentLibrary)
 					|| destListType.Equals(SPListTemplateType.PictureLibrary))
 					&& ((internalName.Equals("Created") && displayName.Equals("Created Date"))
 					 || (internalName.Equals("Modified") && displayName.Equals("Last Modified"))
 					 || (internalName.Equals("FileDirRef") && displayName.Equals("URL Dir Name"))
 					 || (internalName.Equals("FSObjType") && displayName.Equals("File System Object Type"))))
+					|| (destListType.Equals(SPListTemplateType.DiscussionBoard)
+					&& (
+					(internalName.Equals("Body") && displayName.Equals("Text"))
+					|| (internalName.Equals("Author"))
+					|| (internalName.Equals("Created"))
+					)
+					))
 				{
 					Console.WriteLine("Updating display name of " + internalName + " to " + displayName);
 					SPField f = list.Fields.GetFieldByInternalName(internalName);
@@ -530,8 +538,6 @@ namespace SharePointListCopy
 					|| (internalName.Equals("ImageHeight"))
 					|| (internalName.Equals("Thumbnail"))
 					|| (internalName.Equals("Preview"))
-					|| (destListType.Equals(SPListTemplateType.DiscussionBoard)
-					&& (displayName.Equals("Posted By") && internalName.Equals("Author")))
 					);
 				if (!special && !newListFields.ContainsKey(displayName))
 				{
