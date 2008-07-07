@@ -768,5 +768,11 @@ namespace SharePointListCopy
 		{
 			return sourceListName;
 		}
+
+
+		public SPListTemplateType GetSourceListType()
+		{
+			return sourceListType;
+		}
 	}
 }

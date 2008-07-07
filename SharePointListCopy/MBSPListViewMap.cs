@@ -32,6 +32,12 @@ namespace SharePointListCopy
 	{
 		public MBSPListViewMap(MBSPListMap aListMap)
 		{
+			SPListTemplateType listType = aListMap.GetSourceListType();
+			if (listType.Equals(SPListTemplateType.DocumentLibrary)
+				|| listType.Equals(SPListTemplateType.PictureLibrary))
+			{
+				return;
+			}
 			SharePointViewsWebService.Views viewService = new SharePointViewsWebService.Views();
 			viewService.Url = aListMap.GetSourceSiteURL() + "/_vti_bin/Views.asmx";
 			viewService.Credentials = System.Net.CredentialCache.DefaultCredentials;
