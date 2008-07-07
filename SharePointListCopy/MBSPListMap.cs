@@ -53,6 +53,7 @@ namespace SharePointListCopy
 		public Hashtable listFields = new Hashtable();
 		public Hashtable reverseListFields = new Hashtable();
 		public Hashtable newListFields = new Hashtable();
+		public Hashtable reverseNewListFields = new Hashtable();
 		bool newList = false;
 		string listServiceURL = "/_vti_bin/Lists.asmx";
 		public string listKeyField = "";
@@ -470,6 +471,10 @@ namespace SharePointListCopy
 					f.Title = displayName;
 					f.Update(true);
 					exists = true;
+					if (!reverseNewListFields.ContainsKey(displayName))
+					{
+						reverseNewListFields.Add(displayName, f.InternalName);
+					}
 				}
 				if (
 					((destListType.Equals(SPListTemplateType.DocumentLibrary)
@@ -491,6 +496,10 @@ namespace SharePointListCopy
 					f.Title = displayName;
 					f.Update(true);
 					exists = true;
+					if (!reverseNewListFields.ContainsKey(displayName))
+					{
+						reverseNewListFields.Add(displayName, f.InternalName);
+					}
 				}
 				if (displayName.Equals("Type") 
 					&& !destListType.Equals(SPListTemplateType.DocumentLibrary))
@@ -543,6 +552,10 @@ namespace SharePointListCopy
 				{
 					SPField f = list.Fields.GetField(displayName);
 					newListFields.Add(displayName, f.InternalName);
+					if (!reverseNewListFields.ContainsKey(displayName))
+					{
+						reverseNewListFields.Add(displayName, f.InternalName);
+					}
 				}
 			}
 			if (!exists)
@@ -552,6 +565,10 @@ namespace SharePointListCopy
 				node.Attributes["Name"].Value = displayName;
 				newInternalName = list.Fields.AddFieldAsXml(node.OuterXml);
 				newListFields.Add(displayName, newInternalName);
+				if (!reverseNewListFields.ContainsKey(displayName))
+				{
+					reverseNewListFields.Add(displayName, newInternalName);
+				}
 			}
 		}
 
@@ -599,6 +616,7 @@ namespace SharePointListCopy
 			{
 				topLevel.GetAllSubItems(listService, sourceListName, sourceListNameURL);
 				topLevel.CopyData(sourceSiteURL, sourceListNameURL);
+				MBSPListViewMap v = new MBSPListViewMap(this);
 				return true;
 			}
 			return false;
@@ -737,6 +755,18 @@ namespace SharePointListCopy
 					return SPListTemplateType.CustomGrid;
 			}
 			return SPListTemplateType.DocumentLibrary;
+		}
+
+
+		public string GetSourceSiteURL()
+		{
+			return sourceSiteURL;
+		}
+
+
+		public string GetSourceListName()
+		{
+			return sourceListName;
 		}
 	}
 }
