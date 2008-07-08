@@ -286,16 +286,13 @@ namespace SharePointListCopy
 			siteService.GetListCollection(out lists);
 			foreach (SharePointSiteDataWebService._sList list in lists)
 			{
-				if (!list.BaseType.Equals("DiscussionBoard"))
-				{
-					source = sourceSiteURL + list.DefaultViewUrl;
-					listNameURL = GetListNameURL(source);
-					dest_site = destSiteURL + listNameURL;
-					string[] bits = { source, dest_site, dest_path };
-					Console.WriteLine("");
-					Console.WriteLine("Adding site list: " + bits[0] + " copying to " + bits[1]);
-					r.Add(bits);
-				}
+				source = sourceSiteURL + list.DefaultViewUrl;
+				listNameURL = GetListNameURL(source);
+				dest_site = destSiteURL + listNameURL;
+				string[] bits = { source, dest_site, dest_path };
+				Console.WriteLine("");
+				Console.WriteLine("Adding site list: " + bits[0] + " copying to " + bits[1]);
+				r.Add(bits);
 			}
 			return r;
 		}
