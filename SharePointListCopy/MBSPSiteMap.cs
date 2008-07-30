@@ -278,6 +278,10 @@ namespace SharePointListCopy
 			int startOfFQDN = sourceSiteURL.IndexOf("//") + 2;
 			int endOfFQDN = sourceSiteURL.IndexOf("/", startOfFQDN);
 			string sourceSiteURLBase = sourceSiteURL.Substring(0, endOfFQDN);
+			if (!destSiteURL.EndsWith("/"))
+			{
+				destSiteURL += "/";
+			}
 			SharePointSiteDataWebService.SiteData siteService = new SharePointSiteDataWebService.SiteData();
 			siteService.Url = sourceSiteURL + "/_vti_bin/SiteData.asmx";
 			siteService.Credentials = System.Net.CredentialCache.DefaultCredentials;
