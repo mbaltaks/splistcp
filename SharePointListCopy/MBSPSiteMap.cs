@@ -275,10 +275,9 @@ namespace SharePointListCopy
 			string dest_path = "";
 			string listNameURL = "";
 			ArrayList r = new ArrayList();
-			if (sourceSiteURL.EndsWith("/"))
-			{
-				sourceSiteURL = sourceSiteURL.Substring(0, sourceSiteURL.LastIndexOf('/'));
-			}
+			int startOfFQDN = sourceSiteURL.IndexOf("//") + 2;
+			int endOfFQDN = sourceSiteURL.IndexOf("/", startOfFQDN);
+			string sourceSiteURLBase = sourceSiteURL.Substring(0, endOfFQDN);
 			SharePointSiteDataWebService.SiteData siteService = new SharePointSiteDataWebService.SiteData();
 			siteService.Url = sourceSiteURL + "/_vti_bin/SiteData.asmx";
 			siteService.Credentials = System.Net.CredentialCache.DefaultCredentials;
@@ -286,7 +285,7 @@ namespace SharePointListCopy
 			siteService.GetListCollection(out lists);
 			foreach (SharePointSiteDataWebService._sList list in lists)
 			{
-				source = sourceSiteURL + list.DefaultViewUrl;
+				source = sourceSiteURLBase + list.DefaultViewUrl;
 				listNameURL = GetListNameURL(source);
 				dest_site = destSiteURL + listNameURL;
 				string[] bits = { source, dest_site, dest_path };
