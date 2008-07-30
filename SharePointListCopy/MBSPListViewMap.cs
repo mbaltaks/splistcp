@@ -50,6 +50,12 @@ namespace SharePointListCopy
 				{
 					continue;
 				}
+				if (listType.Equals(SPListTemplateType.Events)
+					&& (s.Attributes["DisplayName"].Value.ToString().Equals("Calendar")
+					|| s.Attributes["DisplayName"].Value.ToString().Equals("Current Events")))
+				{
+					continue;
+				}
 				Console.WriteLine("Copying View " + s.Attributes["DisplayName"].Value.ToString());
 				XmlNode dv = s.Attributes.GetNamedItem("DefaultView");
 				bool defaultView = false;
