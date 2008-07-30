@@ -46,6 +46,10 @@ namespace SharePointListCopy
 				{
 					continue;
 				}
+				if (s.Attributes["DisplayName"].Value.ToString().Length < 1)
+				{
+					continue;
+				}
 				Console.WriteLine("Copying View " + s.Attributes["DisplayName"].Value.ToString());
 				XmlNode dv = s.Attributes.GetNamedItem("DefaultView");
 				bool defaultView = false;
