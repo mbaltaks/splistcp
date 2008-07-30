@@ -237,6 +237,11 @@ namespace SharePointListCopy
 			{
 				sc = new SPSite(site);
 				web = sc.OpenWeb();
+				if (!web.Url.Equals(site))
+				{
+					Exception e = new Exception("The destination site " + site + " does not exist. Please create it first.");
+					throw e;
+				}
 			}
 			catch (Exception e)
 			{
