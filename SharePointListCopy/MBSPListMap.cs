@@ -85,6 +85,10 @@ namespace SharePointListCopy
 			{
 				return;
 			}
+			if (destListName.Length < 1)
+			{
+				destListName = sourceListName;
+			}
 			destList = GetSPList(web, destListName);
 
 			XmlNode sourceListNode = null;
@@ -237,7 +241,7 @@ namespace SharePointListCopy
 			{
 				sc = new SPSite(site);
 				web = sc.OpenWeb();
-				if (!web.Url.Equals(site))
+				if (!Program.singleList && !web.Url.Equals(site))
 				{
 					Exception e = new Exception("The destination site " + site + " does not exist. Please create it first.");
 					throw e;

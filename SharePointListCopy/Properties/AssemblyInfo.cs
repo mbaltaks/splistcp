@@ -52,8 +52,8 @@ using System.Runtime.InteropServices;
 //      Revision
 //
 // Don't use this Revision number, let the version control system do that.
-[assembly: AssemblyVersion("1.0.6.0")]
-[assembly: AssemblyFileVersion("1.0.6.0")]
+[assembly: AssemblyVersion("1.0.7.0")]
+[assembly: AssemblyFileVersion("1.0.7.0")]
 
 namespace SharePointListCopy
 {

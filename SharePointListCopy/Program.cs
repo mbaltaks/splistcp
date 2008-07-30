@@ -52,6 +52,7 @@ namespace SharePointListCopy
 		static Hashtable optionValues = new Hashtable();
 		static ArrayList lists = new ArrayList();
 		static Hashtable replacements = new Hashtable();
+		public static bool singleList = false;
 		//public static string logFilePath = "";
 		//public static StreamWriter logFile;
 
@@ -144,6 +145,7 @@ namespace SharePointListCopy
 			{
 				string[] listarg = { raw_source, raw_dest_site, raw_dest_path };
 				lists.Add(listarg);
+				singleList = true;
 			}
 			else if (optionValues.ContainsKey("--lists-file"))
 			{
