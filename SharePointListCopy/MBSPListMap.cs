@@ -481,41 +481,41 @@ namespace SharePointListCopy
 
 			bool exists = ListFieldDisplayNameFound(list, displayName);
 			bool exists2 = ListFieldInternalNameFound(list, internalName);
+			if (
+				((destListType.Equals(SPListTemplateType.DocumentLibrary)
+				|| destListType.Equals(SPListTemplateType.PictureLibrary))
+				&& ((internalName.Equals("Created") && displayName.Equals("Created Date"))
+				 || (internalName.Equals("Modified") && displayName.Equals("Last Modified"))
+				 || (internalName.Equals("FileDirRef") && displayName.Equals("URL Dir Name"))
+				 || (internalName.Equals("FSObjType") && displayName.Equals("File System Object Type"))))
+				|| (destListType.Equals(SPListTemplateType.DiscussionBoard)
+				&& (
+				(internalName.Equals("Body") && displayName.Equals("Text"))
+				|| (internalName.Equals("Author"))
+				|| (internalName.Equals("Created"))
+				)
+				)
+				|| (destListType.Equals(SPListTemplateType.IssueTracking)
+				&& (internalName.Equals("InstanceID"))
+				)
+				)
+			{
+				Console.WriteLine("Updating display name of " + internalName + " to " + displayName);
+				SPField f = list.Fields.GetFieldByInternalName(internalName);
+				f.Title = displayName;
+				f.Update(true);
+				exists = true;
+				if (!reverseNewListFields.ContainsKey(displayName))
+				{
+					reverseNewListFields.Add(displayName, f.InternalName);
+				}
+			}
 			if (newList)
 			{
 				if (internalName.Equals(listKeyFieldInternal)
 					&& ListFieldInternalNameFound(list, internalName))
 				{
 					Console.WriteLine("Updating display name of key field " + internalName + " to " + displayName);
-					SPField f = list.Fields.GetFieldByInternalName(internalName);
-					f.Title = displayName;
-					f.Update(true);
-					exists = true;
-					if (!reverseNewListFields.ContainsKey(displayName))
-					{
-						reverseNewListFields.Add(displayName, f.InternalName);
-					}
-				}
-				if (
-					((destListType.Equals(SPListTemplateType.DocumentLibrary)
-					|| destListType.Equals(SPListTemplateType.PictureLibrary))
-					&& ((internalName.Equals("Created") && displayName.Equals("Created Date"))
-					 || (internalName.Equals("Modified") && displayName.Equals("Last Modified"))
-					 || (internalName.Equals("FileDirRef") && displayName.Equals("URL Dir Name"))
-					 || (internalName.Equals("FSObjType") && displayName.Equals("File System Object Type"))))
-					|| (destListType.Equals(SPListTemplateType.DiscussionBoard)
-					&& (
-					(internalName.Equals("Body") && displayName.Equals("Text"))
-					|| (internalName.Equals("Author"))
-					|| (internalName.Equals("Created"))
-					)
-					)
-					|| (destListType.Equals(SPListTemplateType.IssueTracking)
-					&& (internalName.Equals("InstanceID"))
-					)
-					)
-				{
-					Console.WriteLine("Updating display name of " + internalName + " to " + displayName);
 					SPField f = list.Fields.GetFieldByInternalName(internalName);
 					f.Title = displayName;
 					f.Update(true);
