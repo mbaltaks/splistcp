@@ -468,8 +468,19 @@ namespace SharePointListCopy
 					return;
 				}
 			}
+			if (destListType.Equals(SPListTemplateType.IssueTracking))
+			{
+				if (internalName.Equals("ID")
+					|| internalName.Equals("IssueID")
+					|| internalName.Equals("RemoveRelatedID")
+					|| internalName.Equals("LinkIssueIDNoMenu"))
+				{
+					return;
+				}
+			}
 
 			bool exists = ListFieldDisplayNameFound(list, displayName);
+			bool exists2 = ListFieldInternalNameFound(list, internalName);
 			if (newList)
 			{
 				if (internalName.Equals(listKeyFieldInternal)
@@ -498,7 +509,11 @@ namespace SharePointListCopy
 					|| (internalName.Equals("Author"))
 					|| (internalName.Equals("Created"))
 					)
-					))
+					)
+					|| (destListType.Equals(SPListTemplateType.IssueTracking)
+					&& (internalName.Equals("InstanceID"))
+					)
+					)
 				{
 					Console.WriteLine("Updating display name of " + internalName + " to " + displayName);
 					SPField f = list.Fields.GetFieldByInternalName(internalName);
@@ -734,6 +749,8 @@ namespace SharePointListCopy
 
 
 		// From http://www.sharepointblogs.com/marwantarek/archive/2007/08/12/list-definitions-type-and-basetype.aspx
+		// And http://www.sharepointblogs.com/bobbyhabib/archive/2007/09/26/list-types-amp-list-internal-values-available-in-moss-2007.aspx
+		// And http://www.codeproject.com/KB/dotnet/QueriesToAnalyzeSPUsage.aspx
 		public static SPListTemplateType GetTypeFromTypeCode(string typeCode)
 		{
 			switch (typeCode)
@@ -762,6 +779,8 @@ namespace SharePointListCopy
 					return SPListTemplateType.DataSources;
 				case "120":
 					return SPListTemplateType.CustomGrid;
+				case "1100":
+					return SPListTemplateType.IssueTracking;
 			}
 			return SPListTemplateType.DocumentLibrary;
 		}
