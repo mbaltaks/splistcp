@@ -782,7 +782,10 @@ namespace SharePointListCopy
 				case "1100":
 					return SPListTemplateType.IssueTracking;
 			}
-			return SPListTemplateType.DocumentLibrary;
+			// This is not helpful.
+			//return SPListTemplateType.DocumentLibrary;
+			Exception e = new Exception("SharePoint list template type code " + typeCode.ToString() + " is not yet supported.");
+			throw e;
 		}
 
 
