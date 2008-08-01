@@ -56,6 +56,11 @@ namespace SharePointListCopy
 				{
 					continue;
 				}
+				if (listType.Equals(SPListTemplateType.Survey))
+				{
+					// There are only three views, and they can't be changed or added to.
+					continue;
+				}
 				Console.WriteLine("Copying View " + s.Attributes["DisplayName"].Value.ToString());
 				XmlNode dv = s.Attributes.GetNamedItem("DefaultView");
 				bool defaultView = false;
