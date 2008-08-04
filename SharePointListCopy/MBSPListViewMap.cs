@@ -46,6 +46,11 @@ namespace SharePointListCopy
 				{
 					continue;
 				}
+				if (listType.Equals(SPListTemplateType.PictureLibrary)
+					&& s.Attributes["DisplayName"].Value.ToString().Equals("Slide show view"))
+				{
+					continue;
+				}
 				if (s.Attributes["DisplayName"].Value.ToString().Length < 1)
 				{
 					continue;
