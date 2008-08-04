@@ -777,8 +777,32 @@ namespace SharePointListCopy
 					return SPListTemplateType.PictureLibrary;
 				case "110":
 					return SPListTemplateType.DataSources;
+				case "111":
+					return SPListTemplateType.WebTemplateCatalog;
+				case "113":
+					return SPListTemplateType.WebPartCatalog;
+				case "114":
+					return SPListTemplateType.ListTemplateCatalog;
+				case "115":
+					return SPListTemplateType.XMLForm;
 				case "120":
 					return SPListTemplateType.CustomGrid;
+				case "200":
+					return SPListTemplateType.Meetings;
+				case "201":
+					return SPListTemplateType.Agenda;
+				case "202":
+					return SPListTemplateType.MeetingUser;
+				case "204":
+					return SPListTemplateType.Decision;
+				case "207":
+					return SPListTemplateType.MeetingObjective;
+				case "210":
+					return SPListTemplateType.TextBox;
+				case "211":
+					return SPListTemplateType.ThingsToBring;
+				case "212":
+					return SPListTemplateType.HomePageLibrary;
 				case "1100":
 					return SPListTemplateType.IssueTracking;
 			}
