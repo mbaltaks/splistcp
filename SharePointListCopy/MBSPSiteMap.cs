@@ -277,6 +277,10 @@ namespace SharePointListCopy
 			ArrayList r = new ArrayList();
 			int startOfFQDN = sourceSiteURL.IndexOf("//") + 2;
 			int endOfFQDN = sourceSiteURL.IndexOf("/", startOfFQDN);
+			if (endOfFQDN.Equals(-1))
+			{
+				endOfFQDN = sourceSiteURL.Length;
+			}
 			string sourceSiteURLBase = sourceSiteURL.Substring(0, endOfFQDN);
 			if (!destSiteURL.EndsWith("/"))
 			{
