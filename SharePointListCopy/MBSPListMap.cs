@@ -116,6 +116,7 @@ namespace SharePointListCopy
 			}
 			else
 			{
+				destListType = destList.BaseTemplate;
 				// Check the type of the source and dest, if they don't match, stop.
 				if (!sourceListType.Equals(destList.BaseTemplate))
 				{
