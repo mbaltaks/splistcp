@@ -790,8 +790,8 @@ namespace SharePointListCopy
 					return SPListTemplateType.CustomGrid;
 				case "200":
 					return SPListTemplateType.Meetings;
-				case "201":
-					return SPListTemplateType.Agenda;
+				//case "201":
+				//	return SPListTemplateType.Agenda;
 				case "202":
 					return SPListTemplateType.MeetingUser;
 				case "204":
