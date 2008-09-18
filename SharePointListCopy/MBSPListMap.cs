@@ -249,6 +249,9 @@ namespace SharePointListCopy
 						SPWebTemplateCollection Templates = web.GetAvailableWebTemplates(1033);
 						SPWebTemplate siteTemplate = Templates["STS#1"];
 						string site_name = site.Substring(site.LastIndexOf('/') + 1);
+						Console.WriteLine("");
+						Console.WriteLine("");
+						Console.WriteLine("Creating blank site " + site_name);
 						web.Webs.Add(site_name, site_name, "", 1033, siteTemplate, false, false);
 						sc = new SPSite(site);
 						web = sc.OpenWeb();
