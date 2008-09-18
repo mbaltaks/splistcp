@@ -244,8 +244,20 @@ namespace SharePointListCopy
 				web = sc.OpenWeb();
 				if (!Program.singleList && !web.Url.Equals(site))
 				{
-					Exception e = new Exception("The destination site " + site + " does not exist. Please create it first.");
-					throw e;
+					if (Program.createBlankSite)
+					{
+						SPWebTemplateCollection Templates = web.GetAvailableWebTemplates(1033);
+						SPWebTemplate siteTemplate = Templates["STS#1"];
+						string site_name = site.Substring(site.LastIndexOf('/') + 1);
+						web.Webs.Add(site_name, site_name, "", 1033, siteTemplate, false, false);
+						sc = new SPSite(site);
+						web = sc.OpenWeb();
+					}
+					else
+					{
+						Exception e = new Exception("The destination site " + site + " does not exist. Please create it first.");
+						throw e;
+					}
 				}
 			}
 			catch (Exception e)
