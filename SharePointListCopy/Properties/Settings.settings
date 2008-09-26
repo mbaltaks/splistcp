@@ -14,5 +14,8 @@
     <Setting Name="splistcp_SharePointViewsWebService_Views" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://localhost:8888/_vti_bin/Views.asmx</Value>
     </Setting>
+    <Setting Name="splistcp_SharePointVersionsWebService_Versions" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost:8888/_vti_bin/Versions.asmx</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

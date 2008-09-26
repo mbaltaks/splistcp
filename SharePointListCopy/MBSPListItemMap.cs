@@ -180,6 +180,129 @@ namespace SharePointListCopy
 		}
 
 
+		public string SPAttributeDateFormat(string date)
+		{
+			string d = date;
+			string day = d.Substring(0, d.IndexOf('/'));
+			d = d.Substring(d.IndexOf('/') + 1);
+			string month = d.Substring(0, d.IndexOf('/'));
+			d = d.Substring(d.IndexOf('/') + 1);
+			string year = d.Substring(0, d.IndexOf(' '));
+			d = d.Substring(d.IndexOf(' ') + 1);
+			string hour = d.Substring(0, d.IndexOf(':'));
+			d = d.Substring(d.IndexOf(':') + 1);
+			string minute = d.Substring(0, d.IndexOf(' '));
+			d = d.Substring(d.IndexOf(' ') + 1);
+			int h = System.Convert.ToInt32(hour, 10);
+			if (d.Equals("PM"))
+			{
+				if (h < 12)
+				{
+					h += 12;
+				}
+				hour = h.ToString();
+			}
+			else if (d.Equals("AM"))
+			{
+				if (h.Equals(12))
+				{
+					h = 0;
+				}
+				hour = h.ToString();
+			}
+			string newDate = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":00";
+			return newDate;
+		}
+
+
+		public void GetListItemVersions(string sourceSiteURL, string listName, 
+			string folderPath, string fileName, string destFolderPath, ArrayList attributeNames,
+			Hashtable attributes)
+		{
+			string[] paths = new string[] { listName, folderPath, fileName };
+			string filePath = MBSPListMap.CombinePaths(paths);
+			SharePointVersionsWebService.Versions v = new SharePointVersionsWebService.Versions();
+			v.Url = sourceSiteURL + "/_vti_bin/Versions.asmx";
+			v.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			XmlNode versions = v.GetVersions(filePath);
+			string fileURL = "";
+			string editor = attributes["ows_Editor"].ToString();
+			string modified = attributes["ows_Modified"].ToString();
+			foreach (XmlNode child in versions)
+			{
+				if (child.Name.Equals("result"))
+				{
+					if (!child.Attributes["version"].Value.ToString().StartsWith("@"))
+					{
+						fileURL = child.Attributes["url"].Value.ToString();
+						//listMap.destList.EnableVersioning = true;
+						//listMap.destList.Update();
+						SPListItem newItem = AddRemoteFile(fileName, fileURL, destFolderPath);
+						// now set created date and created by for this version
+						//listMap.destList.EnableVersioning = false;
+						//listMap.destList.Update();
+						attributes["ows_Editor"] = MBSPSiteMap.GetSharePointIDFromLoginName(child.Attributes["createdBy"].Value.ToString(), sourceSiteURL);
+						attributes["ows_Modified"] = SPAttributeDateFormat(child.Attributes["created"].Value.ToString());
+						SetListItemAttributes(attributeNames, attributes, newItem, sourceSiteURL);
+						//listMap.destList.EnableVersioning = true;
+						//listMap.destList.Update();
+					}
+				}
+			}
+			attributes["ows_Editor"] = editor;
+			attributes["ows_Modified"] = modified;
+		}
+
+
+		public SPListItem AddRemoteFile(string itemName, string fileURL, string destFolderPath)
+		{
+			System.Net.WebClient client = new System.Net.WebClient();
+			client.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			string localPath = Program.tempFilePath + "/" + itemName;
+			System.Console.Out.WriteLine("");
+			System.Console.Out.WriteLine("Downloading " + fileURL);
+			client.DownloadFile(fileURL, localPath);
+
+			FileStream localFile = File.OpenRead(localPath);
+			//metadataTable.Add("vti_title", title);
+			SPFolder f = listMap.EnsureFolderPathExists(listMap.destList.RootFolder, destFolderPath);
+			System.Console.Out.WriteLine("Adding " + f.ServerRelativeUrl + "/"
+				+ itemName);
+			Hashtable metadataTable = new Hashtable();
+			SPFileCollection files = f.Files;
+			SPFile newFile = files.Add(f.ServerRelativeUrl + "/" + itemName, localFile, metadataTable, true);
+			localFile.Close();
+			File.Delete(localPath);
+			return newFile.Item;
+		}
+
+
+		public void SetListItemAttributes(ArrayList attributeNames, Hashtable attributes,
+			SPListItem newItem, string sourceSiteURL)
+		{
+			bool versions = newItem.ParentList.EnableVersioning;
+			newItem.ParentList.EnableVersioning = false;
+			newItem.ParentList.Update();
+			foreach (Object attributeName in attributeNames)
+			{
+				SetListItemAttribute(newItem, attributeName.ToString(),
+					attributes[attributeName], listMap.listFields, listMap.newListFields,
+					sourceSiteURL);
+			}
+			/*try
+			{*/
+			newItem.Update();
+			newItem.ParentList.EnableVersioning = versions;
+			newItem.ParentList.Update();
+			/*}
+			catch (Exception e)
+			{
+				Console.WriteLine("** There was a problem writing attributes for this item:");
+				Console.WriteLine(e.Message);
+			}*/
+		}
+
+
 		public void CopyData(string sourceSiteURL, string sourceListNameURL)
 		{
 			System.Net.WebClient client = new System.Net.WebClient();
@@ -212,30 +335,21 @@ namespace SharePointListCopy
 						string[] paths = new string[] { sourceSiteURL, 
 						sourceListNameURL, subItem.sourceFolderPath, subItem.itemName };
 						string fileURL = MBSPListMap.CombinePaths(paths);
-						string localPath = Program.tempFilePath + "/" + subItem.itemName;
-						System.Console.Out.WriteLine("");
-						System.Console.Out.WriteLine("Downloading " + fileURL);
+						if (!Program.skipOldVersions)
+						{
+							GetListItemVersions(sourceSiteURL, sourceListNameURL,
+								subItem.sourceFolderPath, subItem.itemName, subItem.destFolderPath,
+								subItem.attributeNames, subItem.attributes);
+						}
 						try
 						{
-							client.DownloadFile(fileURL, localPath);
+							newItem = AddRemoteFile(subItem.itemName, fileURL, subItem.destFolderPath);
 						}
 						catch (Exception e)
 						{
 							Console.WriteLine(e.Message);
 							return;
 						}
-
-						FileStream localFile = File.OpenRead(localPath);
-						//metadataTable.Add("vti_title", title);
-						SPFolder f = listMap.EnsureFolderPathExists(listMap.destList.RootFolder, subItem.destFolderPath);
-						System.Console.Out.WriteLine("Adding " + f.ServerRelativeUrl + "/"
-							+ subItem.itemName);
-						Hashtable metadataTable = new Hashtable();
-						SPFileCollection files = f.Files;
-						SPFile newFile = files.Add(f.ServerRelativeUrl + "/" + subItem.itemName, localFile, metadataTable, true);
-						localFile.Close();
-						File.Delete(localPath);
-						newItem = newFile.Item;
 					}
 					else if (subItem.hasSubItems)
 					{
@@ -272,21 +386,7 @@ namespace SharePointListCopy
 					}
 					if (newItem != null)
 					{
-						foreach (Object attributeName in subItem.attributeNames)
-						{
-							SetListItemAttribute(newItem, attributeName.ToString(),
-								subItem.attributes[attributeName], listMap.listFields, listMap.newListFields,
-								sourceSiteURL);
-						}
-						/*try
-						{*/
-						newItem.Update();
-						/*}
-						catch (Exception e)
-						{
-							Console.WriteLine("** There was a problem writing attributes for this item:");
-							Console.WriteLine(e.Message);
-						}*/
+						SetListItemAttributes(subItem.attributeNames, subItem.attributes, newItem, sourceSiteURL);
 					}
 				}
 			}

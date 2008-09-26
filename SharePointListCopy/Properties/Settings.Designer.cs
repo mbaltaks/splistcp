@@ -62,5 +62,15 @@ namespace SharePointListCopy.Properties {
                 return ((string)(this["splistcp_SharePointViewsWebService_Views"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:8888/_vti_bin/Versions.asmx")]
+        public string splistcp_SharePointVersionsWebService_Versions {
+            get {
+                return ((string)(this["splistcp_SharePointVersionsWebService_Versions"]));
+            }
+        }
     }
 }

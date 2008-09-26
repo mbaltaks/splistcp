@@ -50,6 +50,8 @@ namespace SharePointListCopy
 		string destListAuthor = "";
 		SPListTemplateType sourceListType = SPListTemplateType.DocumentLibrary;
 		SPListTemplateType destListType = SPListTemplateType.DocumentLibrary;
+		bool sourceListEnableVersions = false;
+		bool destListEnableVersions = false;
 		public Hashtable listFields = new Hashtable();
 		public Hashtable reverseListFields = new Hashtable();
 		public Hashtable newListFields = new Hashtable();
@@ -97,7 +99,7 @@ namespace SharePointListCopy
 				sourceListNode = GetListMetadata(sourceSiteURL,
 					sourceListName, listService, out sourceListDescription,
 					out sourceListAuthor, out sourceListCreated, out sourceListModified,
-					out sourceListType);
+					out sourceListType, out sourceListEnableVersions);
 			}
 			catch (Exception e)
 			{
@@ -112,7 +114,8 @@ namespace SharePointListCopy
 				newList = true;
 				destListDescription = sourceListDescription;
 				destListType = sourceListType;
-				destList = CreateList(web, destListName, destListDescription, destListType);
+				destListEnableVersions = sourceListEnableVersions;
+				destList = CreateList(web, destListName, destListDescription, destListType, destListEnableVersions);
 			}
 			else
 			{
@@ -136,7 +139,7 @@ namespace SharePointListCopy
 				XmlNode destListNode = GetListMetadata(destSiteURL,
 					destListName, listService, out destListDescription,
 					out destListAuthor, out destListCreated, out destListModified,
-					out destListType);
+					out destListType, out destListEnableVersions);
 			}
 			catch (Exception e)
 			{
@@ -224,10 +227,12 @@ namespace SharePointListCopy
 
 
 		public SPList CreateList(SPWeb web, string name,
-			string description, SPListTemplateType type)
+			string description, SPListTemplateType type, bool enableVersions)
 		{
 			Guid newList = web.Lists.Add(name, description, type);
 			SPList destList = web.Lists[newList];
+			destList.EnableVersioning = enableVersions;
+			destList.Update();
 			// We would really like to set the list metadata here,
 			// but there isn't a way to do that.
 			return destList;
@@ -307,13 +312,20 @@ namespace SharePointListCopy
 			out string listAuthor,
 			out DateTime listCreated,
 			out DateTime listModified,
-			out SPListTemplateType listType)
+			out SPListTemplateType listType,
+			out bool listEnableVersions)
 		{
 			listService.Url = site + listServiceURL;
 			listService.Credentials = System.Net.CredentialCache.DefaultCredentials;
 			XmlNode listNode;
 			listNode = listService.GetList(listName);
 			listDescription = "Migrated List";
+			bool enableVersions = false;
+			XmlNode versions = listNode.Attributes.GetNamedItem("EnableVersioning");
+			if (versions != null)
+			{
+				enableVersions = System.Convert.ToBoolean(versions.Value.ToString());
+			}
 			string tempDesc = listNode.Attributes["Description"].Value;
 			if (tempDesc.Trim().Length > 0)
 			{
@@ -327,6 +339,7 @@ namespace SharePointListCopy
 			listModified = DateTime.ParseExact(listNode.Attributes["Modified"].Value, "yyyyMMdd HH:mm:ss", CultureInfo.InvariantCulture);
 			listAuthor = MBSPSiteMap.GetLoginNameFromSharePointID(listNode.Attributes["Author"].Value, site);
 			listType = GetTypeFromTypeCode(listNode.Attributes["ServerTemplate"].Value);
+			listEnableVersions = enableVersions;
 			return listNode;
 		}
 
@@ -844,6 +857,12 @@ namespace SharePointListCopy
 		public SPListTemplateType GetSourceListType()
 		{
 			return sourceListType;
+		}
+
+
+		public bool GetDestListEnableVersions()
+		{
+			return destListEnableVersions;
 		}
 	}
 }

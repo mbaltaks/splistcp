@@ -224,6 +224,78 @@ namespace SharePointListCopy
 		}
 
 
+		// Look up the source SharePoint user ID from the login name.
+		public static string GetSharePointIDFromLoginName(string loginName, string siteURL)
+		{
+			if (siteURL1.Length < 1)
+			{
+				siteURL1 = siteURL;
+			}
+			else
+			{
+				if (siteURL2.Length < 1)
+				{
+					if (!siteURL.Equals(siteURL1))
+					{
+						siteURL2 = siteURL;
+					}
+				}
+			}
+			if (siteURL.Equals(siteURL1))
+			{
+				if (userCache1.Count > 0)
+				{
+					ICollection userkeys = userCache1.Keys;
+					foreach (object userkey in userkeys)
+					{
+						if (userCache1[userkey].ToString().Equals(loginName))
+						{
+							return userkey.ToString();
+						}
+					}
+				}
+			}
+			else if (siteURL.Equals(siteURL2))
+			{
+				if (userCache2.Count > 0)
+				{
+					ICollection userkeys = userCache2.Keys;
+					foreach (object userkey in userkeys)
+					{
+						if (userCache2[userkey].ToString().Equals(loginName))
+						{
+							return userkey.ToString();
+						}
+					}
+				}
+			}
+			string ID = "";
+			SharePointUserGroupWebService.UserGroup userService = new SharePointUserGroupWebService.UserGroup();
+			userService.Url = siteURL + "/_vti_bin/UserGroup.asmx";
+			userService.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			XmlNode users = userService.GetUserCollectionFromSite();
+			String userQuery = "//*[@*]";
+			XmlNodeList userList = users.SelectNodes(userQuery);
+			for (int u = 0; u < userList.Count; u++)
+			{
+				if (userList[u].Attributes["LoginName"].Value.Equals(loginName))
+				{
+					ID = userList[u].Attributes["ID"].Value;
+					if (siteURL.Equals(siteURL1))
+					{
+						userCache1.Add(ID, loginName);
+					}
+					else if (siteURL.Equals(siteURL2))
+					{
+						userCache2.Add(ID, loginName);
+					}
+					return ID;
+				}
+			}
+			return "";
+		}
+
+
 		public static byte[] ByteArrayFromFilePath(string file)
 		{
 			FileInfo info = new FileInfo(file);
