@@ -29,7 +29,7 @@ using Microsoft.SharePoint;
 
 namespace SharePointListCopy
 {
-	class MBSPListItemMap
+	class MBSPListItemMap /*: IComparable*/
 	{
 		string itemName = "";
 		string sourceFolderPath = "";
@@ -124,6 +124,8 @@ namespace SharePointListCopy
 					item.GetAllSubItems(listService, sourceListName, sourceListNameURL);
 				}
 			}
+			// Sorting doesn't solve this, too many gaps in source IDs.
+			//subItems.Sort();
 		}
 
 
@@ -180,6 +182,7 @@ namespace SharePointListCopy
 		}
 
 
+		// This assumes Aus/UK date format - need a way to determine site regional setting.
 		public string SPAttributeDateFormat(string date)
 		{
 			string d = date;
@@ -235,17 +238,11 @@ namespace SharePointListCopy
 					if (!child.Attributes["version"].Value.ToString().StartsWith("@"))
 					{
 						fileURL = child.Attributes["url"].Value.ToString();
-						//listMap.destList.EnableVersioning = true;
-						//listMap.destList.Update();
 						SPListItem newItem = AddRemoteFile(fileName, fileURL, destFolderPath);
 						// now set created date and created by for this version
-						//listMap.destList.EnableVersioning = false;
-						//listMap.destList.Update();
 						attributes["ows_Editor"] = MBSPSiteMap.GetSharePointIDFromLoginName(child.Attributes["createdBy"].Value.ToString(), sourceSiteURL);
 						attributes["ows_Modified"] = SPAttributeDateFormat(child.Attributes["created"].Value.ToString());
 						SetListItemAttributes(attributeNames, attributes, newItem, sourceSiteURL);
-						//listMap.destList.EnableVersioning = true;
-						//listMap.destList.Update();
 					}
 				}
 			}
@@ -391,5 +388,16 @@ namespace SharePointListCopy
 				}
 			}
 		}
+
+
+		/*
+		public int CompareTo(object obj)
+		{
+			MBSPListItemMap listItem = (MBSPListItemMap) obj;
+			int myID = System.Convert.ToInt32(this.attributes["ows_ID"].ToString(), 10);
+			int theirID = System.Convert.ToInt32(listItem.attributes["ows_ID"].ToString());
+			return myID.CompareTo(theirID);
+		}
+		*/
 	}
 }

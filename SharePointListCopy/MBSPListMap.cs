@@ -563,8 +563,7 @@ namespace SharePointListCopy
 
 			if (exists)
 			{
-				bool special = (displayName.Equals("ID") && internalName.Equals("ID"))
-					|| (displayName.Equals("owshiddenversion") && internalName.Equals("owshiddenversion"))
+				bool special = (displayName.Equals("owshiddenversion") && internalName.Equals("owshiddenversion"))
 					|| (displayName.Equals("Attachments") && internalName.Equals("Attachments"))
 					|| (displayName.Equals("Approval Status") && internalName.Equals("_ModerationStatus"))
 					|| (displayName.Equals("Approver Comments") && internalName.Equals("_ModerationComments"))
@@ -601,6 +600,11 @@ namespace SharePointListCopy
 					|| (internalName.Equals("Thumbnail"))
 					|| (internalName.Equals("Preview"))
 					);
+				// If this list exists, skip the ID because it's likely to conflict.
+				if (!newList)
+				{
+					special = special || (displayName.Equals("ID") && internalName.Equals("ID"));
+				}
 				if (!special && !newListFields.ContainsKey(displayName))
 				{
 					SPField f = list.Fields.GetField(displayName);
