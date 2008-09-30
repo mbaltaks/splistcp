@@ -183,12 +183,21 @@ namespace SharePointListCopy
 
 
 		// This assumes Aus/UK date format - need a way to determine site regional setting.
+		// There is no way, we'll have to guess. What a hopeless API.
 		public string SPAttributeDateFormat(string date)
 		{
 			string d = date;
 			string day = d.Substring(0, d.IndexOf('/'));
 			d = d.Substring(d.IndexOf('/') + 1);
 			string month = d.Substring(0, d.IndexOf('/'));
+			int monthnum = System.Convert.ToInt32(month, 10);
+			if (MBSPSiteMap.versionsUseUSDates || (monthnum > 12))
+			{
+				string s = day;
+				day = month;
+				month = s;
+				MBSPSiteMap.versionsUseUSDates = true;
+			}
 			d = d.Substring(d.IndexOf('/') + 1);
 			string year = d.Substring(0, d.IndexOf(' '));
 			d = d.Substring(d.IndexOf(' ') + 1);

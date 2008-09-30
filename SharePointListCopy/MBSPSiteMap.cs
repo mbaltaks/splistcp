@@ -38,6 +38,7 @@ namespace SharePointListCopy
 		static string siteURL1 = "";
 		static string siteURL2 = "";
 		public static string defaultDomain = Environment.UserDomainName;
+		public static bool versionsUseUSDates = false;
 
 
 		public static bool CreateLocalAccount(string loginName, string fullName, out string domain)
