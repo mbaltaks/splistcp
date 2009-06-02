@@ -54,6 +54,7 @@ namespace SharePointListCopy
 		static Hashtable replacements = new Hashtable();
 		public static bool singleList = false;
 		public static bool createBlankSite = false;
+		public static string newSiteTemplate = "";
 		public static bool skipOldVersions = false;
 		//public static string logFilePath = "";
 		//public static StreamWriter logFile;
@@ -115,6 +116,7 @@ namespace SharePointListCopy
 			options.Add("--default-domain", "Look for users in this domain, defaults to domain of current user.");
 			options.Add("--single-list", "Will copy only the list at the URL specified.");
 			options.Add("--create-blank-site", "Creates a site at the destination from the Blank Site template, if no such site exists. Will not work with --single-list option.");
+			options.Add("--create-site-from-template", "Creates a site at the destination from the specified template, if no such site exists. Will not work with --single-list option. Overrides --create-blank-site.");
 			options.Add("--skip-old-versions", "Don't bother looking up and copying across old versions, just keep the most recent version.");
 			//options.Add("--always-enable-versioning", "");
 			//options.Add("--doclibs-only", "");
@@ -149,6 +151,10 @@ namespace SharePointListCopy
 			if (optionValues.ContainsKey("--create-blank-site"))
 			{
 				createBlankSite = true;
+			}
+			if (optionValues.ContainsKey("--create-site-from-template"))
+			{
+				newSiteTemplate = optionValues["--create-site-from-template"].ToString();
 			}
 			if (optionValues.ContainsKey("--skip-old-versions"))
 			{

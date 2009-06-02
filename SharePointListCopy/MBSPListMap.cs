@@ -249,7 +249,19 @@ namespace SharePointListCopy
 				web = sc.OpenWeb();
 				if (!Program.singleList && !web.Url.Equals(site))
 				{
-					if (Program.createBlankSite)
+				    if (Program.newSiteTemplate != "")
+				    {
+						SPWebTemplateCollection Templates = web.GetAvailableWebTemplates(1033);
+						SPWebTemplate siteTemplate = Templates[Program.newSiteTemplate];
+						string site_name = site.Substring(site.LastIndexOf('/') + 1);
+						Console.WriteLine("");
+						Console.WriteLine("");
+						Console.WriteLine("Creating site " + site_name + " from template " + Program.newSiteTemplate);
+						web.Webs.Add(site_name, site_name, "", 1033, siteTemplate, false, false);
+						sc = new SPSite(site);
+						web = sc.OpenWeb();
+				    }
+					else if (Program.createBlankSite)
 					{
 						SPWebTemplateCollection Templates = web.GetAvailableWebTemplates(1033);
 						SPWebTemplate siteTemplate = Templates["STS#1"];
