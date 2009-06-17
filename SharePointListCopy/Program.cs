@@ -96,7 +96,7 @@ namespace SharePointListCopy
 			{
 				//logFile.Close();
 			}
-			System.Threading.Thread.Sleep(5000);
+			//System.Threading.Thread.Sleep(5000);
 		}
 
 
