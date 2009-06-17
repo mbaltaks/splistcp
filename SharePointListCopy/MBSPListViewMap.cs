@@ -35,7 +35,7 @@ namespace SharePointListCopy
 			SPListTemplateType listType = aListMap.GetSourceListType();
 			SharePointViewsWebService.Views viewService = new SharePointViewsWebService.Views();
 			viewService.Url = aListMap.GetSourceSiteURL() + "/_vti_bin/Views.asmx";
-			viewService.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			viewService.Credentials = Program.getSourceCredentials();
 			XmlNode allViews = viewService.GetViewCollection(aListMap.GetSourceListName());
 			foreach (XmlElement s in allViews)
 			{

@@ -79,8 +79,7 @@ namespace SharePointListCopy
 				Program.printUsage();
 				return;
 			}
-			listService.Credentials = System.Net.CredentialCache.DefaultCredentials;
-			//listService.Credentials = new System.Net.NetworkCredential(username, password, domain);
+			listService.Credentials = Program.getSourceCredentials();
 			GetRealListName();
 			web = GetSPWeb(destSiteURL);
 			if (web == null)
@@ -149,7 +148,7 @@ namespace SharePointListCopy
 				return;
 			}
 			listService.Url = sourceSiteURL + listServiceURL;
-			listService.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			listService.Credentials = Program.getSourceCredentials();
 			replacements = aReplacements;
 
 			topLevel = new MBSPListItemMap(this, destFolderPath, true);
@@ -178,7 +177,7 @@ namespace SharePointListCopy
 		void GetRealListName()
 		{
 			listService.Url = sourceSiteURL + listServiceURL;
-			listService.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			listService.Credentials = Program.getSourceCredentials();
 			XmlNode lists = listService.GetListCollection();
 			foreach (XmlNode child in lists.ChildNodes)
 			{
@@ -328,7 +327,7 @@ namespace SharePointListCopy
 			out bool listEnableVersions)
 		{
 			listService.Url = site + listServiceURL;
-			listService.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			listService.Credentials = Program.getSourceCredentials();
 			XmlNode listNode;
 			listNode = listService.GetList(listName);
 			listDescription = "Migrated List";
@@ -673,7 +672,7 @@ namespace SharePointListCopy
 				ndQueryOptions.InnerXml = "<Folder>" + folder + "</Folder>";
 			}
 			XmlNode ndListItems;
-			listService.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			listService.Credentials = Program.getSourceCredentials();
 			ndListItems = listService.GetListItems(listName, null, ndQuery, ndViewFields, null, ndQueryOptions, null);
 			return ndListItems;
 		}

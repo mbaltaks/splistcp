@@ -55,6 +55,9 @@ namespace SharePointListCopy
 		public static bool singleList = false;
 		public static bool createBlankSite = false;
 		public static string newSiteTemplate = "";
+		public static string sourceCredentialsDomain = "";
+		public static string sourceCredentialsUsername = "";
+		public static string sourceCredentialsPassword = "";
 		public static bool skipOldVersions = false;
 		//public static string logFilePath = "";
 		//public static StreamWriter logFile;
@@ -93,6 +96,7 @@ namespace SharePointListCopy
 			{
 				//logFile.Close();
 			}
+			System.Threading.Thread.Sleep(5000);
 		}
 
 
@@ -117,6 +121,9 @@ namespace SharePointListCopy
 			options.Add("--single-list", "Will copy only the list at the URL specified.");
 			options.Add("--create-blank-site", "Creates a site at the destination from the Blank Site template, if no such site exists. Will not work with --single-list option.");
 			options.Add("--create-site-from-template", "Creates a site at the destination from the specified template, if no such site exists. Will not work with --single-list option. Overrides --create-blank-site.");
+			options.Add("--source-credentials-domain", "Provide a domain name as part of the credentials used to access the source sharepoint site.");
+			options.Add("--source-credentials-username", "Provide a username as part of the credentials used to access the source sharepoint site.");
+			options.Add("--source-credentials-password", "Provide a password as part of the credentials used to access the source sharepoint site.");
 			options.Add("--skip-old-versions", "Don't bother looking up and copying across old versions, just keep the most recent version.");
 			//options.Add("--always-enable-versioning", "");
 			//options.Add("--doclibs-only", "");
@@ -155,6 +162,18 @@ namespace SharePointListCopy
 			if (optionValues.ContainsKey("--create-site-from-template"))
 			{
 				newSiteTemplate = optionValues["--create-site-from-template"].ToString();
+			}
+			if (optionValues.ContainsKey("--source-credentials-domain"))
+			{
+				sourceCredentialsDomain = optionValues["--source-credentials-domain"].ToString();
+			}
+			if (optionValues.ContainsKey("--source-credentials-username"))
+			{
+				sourceCredentialsUsername = optionValues["--source-credentials-username"].ToString();
+			}
+			if (optionValues.ContainsKey("--source-credentials-password"))
+			{
+				sourceCredentialsPassword = optionValues["--source-credentials-password"].ToString();
 			}
 			if (optionValues.ContainsKey("--skip-old-versions"))
 			{
@@ -286,6 +305,23 @@ namespace SharePointListCopy
 				sr.Close();
 			}
 			return r;
+		}
+
+
+		public static System.Net.ICredentials getSourceCredentials()
+		{
+			System.Net.ICredentials creds;
+			if ((sourceCredentialsDomain.Length > 0)
+				|| (sourceCredentialsUsername.Length > 0)
+				|| (sourceCredentialsPassword.Length > 0))
+			{
+				creds = new System.Net.NetworkCredential(Program.sourceCredentialsUsername, Program.sourceCredentialsPassword, Program.sourceCredentialsDomain);
+			}
+			else
+			{
+				creds = System.Net.CredentialCache.DefaultCredentials;
+			}
+			return creds;
 		}
 
 

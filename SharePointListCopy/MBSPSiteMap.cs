@@ -200,7 +200,7 @@ namespace SharePointListCopy
 			}
 			SharePointUserGroupWebService.UserGroup userService = new SharePointUserGroupWebService.UserGroup();
 			userService.Url = siteURL + "/_vti_bin/UserGroup.asmx";
-			userService.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			userService.Credentials = Program.getSourceCredentials();
 			XmlNode users = userService.GetUserCollectionFromSite();
 			String userQuery = "//*[@*]";
 			XmlNodeList userList = users.SelectNodes(userQuery);
@@ -273,7 +273,7 @@ namespace SharePointListCopy
 			string ID = "";
 			SharePointUserGroupWebService.UserGroup userService = new SharePointUserGroupWebService.UserGroup();
 			userService.Url = siteURL + "/_vti_bin/UserGroup.asmx";
-			userService.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			userService.Credentials = Program.getSourceCredentials();
 			XmlNode users = userService.GetUserCollectionFromSite();
 			String userQuery = "//*[@*]";
 			XmlNodeList userList = users.SelectNodes(userQuery);
@@ -361,7 +361,7 @@ namespace SharePointListCopy
 			}
 			SharePointSiteDataWebService.SiteData siteService = new SharePointSiteDataWebService.SiteData();
 			siteService.Url = sourceSiteURL + "/_vti_bin/SiteData.asmx";
-			siteService.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			siteService.Credentials = Program.getSourceCredentials();
 			SharePointSiteDataWebService._sList[] lists;
 			siteService.GetListCollection(out lists);
 			foreach (SharePointSiteDataWebService._sList list in lists)

@@ -166,7 +166,7 @@ namespace SharePointListCopy
 			}
 			if (newItem.hasAttachments)
 			{
-				listService.Credentials = System.Net.CredentialCache.DefaultCredentials;
+				listService.Credentials = Program.getSourceCredentials();
 				XmlNode attachmentsNode = listService.GetAttachmentCollection(sourceListName,
 					newItem.attributes["ows_ID"].ToString());
 				foreach (XmlNode att in attachmentsNode)
@@ -235,7 +235,7 @@ namespace SharePointListCopy
 			string filePath = MBSPListMap.CombinePaths(paths);
 			SharePointVersionsWebService.Versions v = new SharePointVersionsWebService.Versions();
 			v.Url = sourceSiteURL + "/_vti_bin/Versions.asmx";
-			v.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			v.Credentials = Program.getSourceCredentials();
 			XmlNode versions = v.GetVersions(filePath);
 			string fileURL = "";
 			string editor = attributes["ows_Editor"].ToString();
@@ -263,7 +263,7 @@ namespace SharePointListCopy
 		public SPListItem AddRemoteFile(string itemName, string fileURL, string destFolderPath)
 		{
 			System.Net.WebClient client = new System.Net.WebClient();
-			client.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			client.Credentials = Program.getSourceCredentials();
 			string localPath = Program.tempFilePath + "/" + itemName;
 			System.Console.Out.WriteLine("");
 			System.Console.Out.WriteLine("Downloading " + fileURL);
@@ -312,7 +312,7 @@ namespace SharePointListCopy
 		public void CopyData(string sourceSiteURL, string sourceListNameURL)
 		{
 			System.Net.WebClient client = new System.Net.WebClient();
-			client.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			client.Credentials = Program.getSourceCredentials();
 			System.IO.Directory.CreateDirectory(Program.tempFilePath);
 			foreach (MBSPListItemMap subItem in subItems)
 			{
