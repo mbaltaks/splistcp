@@ -96,7 +96,7 @@ namespace SharePointListCopy
 			try
 			{
 				sourceListNode = GetListMetadata(sourceSiteURL,
-					sourceListName, listService, out sourceListDescription,
+					sourceListName, listService, Program.getSourceCredentials(), out sourceListDescription,
 					out sourceListAuthor, out sourceListCreated, out sourceListModified,
 					out sourceListType, out sourceListEnableVersions);
 			}
@@ -136,7 +136,7 @@ namespace SharePointListCopy
 			try
 			{
 				XmlNode destListNode = GetListMetadata(destSiteURL,
-					destListName, listService, out destListDescription,
+					destListName, listService, System.Net.CredentialCache.DefaultCredentials, out destListDescription,
 					out destListAuthor, out destListCreated, out destListModified,
 					out destListType, out destListEnableVersions);
 			}
@@ -319,6 +319,7 @@ namespace SharePointListCopy
 			string site, 
 			string listName, 
 			SharePointListsWebService.Lists listService,
+			System.Net.ICredentials credentials,
 			out string listDescription,
 			out string listAuthor,
 			out DateTime listCreated,
@@ -327,7 +328,7 @@ namespace SharePointListCopy
 			out bool listEnableVersions)
 		{
 			listService.Url = site + listServiceURL;
-			listService.Credentials = Program.getSourceCredentials();
+			listService.Credentials = credentials;
 			XmlNode listNode;
 			listNode = listService.GetList(listName);
 			listDescription = "Migrated List";
@@ -348,7 +349,7 @@ namespace SharePointListCopy
 			}
 			listCreated = DateTime.ParseExact(listNode.Attributes["Created"].Value, "yyyyMMdd HH:mm:ss", CultureInfo.InvariantCulture);
 			listModified = DateTime.ParseExact(listNode.Attributes["Modified"].Value, "yyyyMMdd HH:mm:ss", CultureInfo.InvariantCulture);
-			listAuthor = MBSPSiteMap.GetLoginNameFromSharePointID(listNode.Attributes["Author"].Value, site);
+			listAuthor = MBSPSiteMap.GetLoginNameFromSharePointID(listNode.Attributes["Author"].Value, site, credentials);
 			listType = GetTypeFromTypeCode(listNode.Attributes["ServerTemplate"].Value);
 			listEnableVersions = enableVersions;
 			return listNode;
@@ -656,7 +657,7 @@ namespace SharePointListCopy
 		}
 
 
-		public XmlNode GetListItems(string folderName, string listName, string listNameURL, string sourceFolderPath)
+		public XmlNode GetListItems(string folderName, string listName, string listNameURL, string sourceFolderPath, System.Net.ICredentials credentials)
 		{
 			XmlDocument xmlDoc = new System.Xml.XmlDocument();
 			XmlNode ndQuery = xmlDoc.CreateNode(XmlNodeType.Element, "Query", "");
@@ -672,7 +673,7 @@ namespace SharePointListCopy
 				ndQueryOptions.InnerXml = "<Folder>" + folder + "</Folder>";
 			}
 			XmlNode ndListItems;
-			listService.Credentials = Program.getSourceCredentials();
+			listService.Credentials = credentials;
 			ndListItems = listService.GetListItems(listName, null, ndQuery, ndViewFields, null, ndQueryOptions, null);
 			return ndListItems;
 		}

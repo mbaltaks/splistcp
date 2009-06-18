@@ -83,7 +83,7 @@ namespace SharePointListCopy
 					SPField f = item.Fields.GetField(newInternalName);
 					if (f.Type.Equals(SPFieldType.User))
 					{
-						string loginName = MBSPSiteMap.GetLoginNameFromSharePointID(value.ToString(), sourceSiteURL);
+						string loginName = MBSPSiteMap.GetLoginNameFromSharePointID(value.ToString(), sourceSiteURL, Program.getSourceCredentials());
 						string fullName = MBSPSiteMap.GetFullNameFromSharePointID(value.ToString());
 						value = MBSPSiteMap.EnsureAUserExists(loginName, fullName, item.ParentList.ParentWeb);
 					}
@@ -101,7 +101,7 @@ namespace SharePointListCopy
 			string sourceListName, string sourceListNameURL)
 		{
 			XmlNode listNode = listMap.GetListItems(itemName,
-				sourceListName, sourceListNameURL, sourceFolderPath);
+				sourceListName, sourceListNameURL, sourceFolderPath, Program.getSourceCredentials());
 
 			// Xml handling from http://blog.andyjohnson.org/?page_id=34
 			String xpq = "//*[@*]"; //get all nodes
@@ -249,7 +249,7 @@ namespace SharePointListCopy
 						fileURL = child.Attributes["url"].Value.ToString();
 						SPListItem newItem = AddRemoteFile(fileName, fileURL, destFolderPath);
 						// now set created date and created by for this version
-						attributes["ows_Editor"] = MBSPSiteMap.GetSharePointIDFromLoginName(child.Attributes["createdBy"].Value.ToString(), sourceSiteURL);
+						attributes["ows_Editor"] = MBSPSiteMap.GetSharePointIDFromLoginName(child.Attributes["createdBy"].Value.ToString(), sourceSiteURL, Program.getSourceCredentials());
 						attributes["ows_Modified"] = SPAttributeDateFormat(child.Attributes["created"].Value.ToString());
 						SetListItemAttributes(attributeNames, attributes, newItem, sourceSiteURL);
 					}

@@ -144,7 +144,7 @@ namespace SharePointListCopy
 
 
 		// Look up the login name from the source SharePoint user ID.
-		public static string GetLoginNameFromSharePointID(string userString, string siteURL)
+		public static string GetLoginNameFromSharePointID(string userString, string siteURL, System.Net.ICredentials credentials)
 		{
 			if (siteURL1.Length < 1)
 			{
@@ -200,7 +200,7 @@ namespace SharePointListCopy
 			}
 			SharePointUserGroupWebService.UserGroup userService = new SharePointUserGroupWebService.UserGroup();
 			userService.Url = siteURL + "/_vti_bin/UserGroup.asmx";
-			userService.Credentials = Program.getSourceCredentials();
+			userService.Credentials = credentials;
 			XmlNode users = userService.GetUserCollectionFromSite();
 			String userQuery = "//*[@*]";
 			XmlNodeList userList = users.SelectNodes(userQuery);
@@ -226,7 +226,7 @@ namespace SharePointListCopy
 
 
 		// Look up the source SharePoint user ID from the login name.
-		public static string GetSharePointIDFromLoginName(string loginName, string siteURL)
+		public static string GetSharePointIDFromLoginName(string loginName, string siteURL, System.Net.ICredentials credentials)
 		{
 			if (siteURL1.Length < 1)
 			{
@@ -273,7 +273,7 @@ namespace SharePointListCopy
 			string ID = "";
 			SharePointUserGroupWebService.UserGroup userService = new SharePointUserGroupWebService.UserGroup();
 			userService.Url = siteURL + "/_vti_bin/UserGroup.asmx";
-			userService.Credentials = Program.getSourceCredentials();
+			userService.Credentials = credentials;
 			XmlNode users = userService.GetUserCollectionFromSite();
 			String userQuery = "//*[@*]";
 			XmlNodeList userList = users.SelectNodes(userQuery);
