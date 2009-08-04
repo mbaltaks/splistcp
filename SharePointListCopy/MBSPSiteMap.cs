@@ -83,8 +83,11 @@ namespace SharePointListCopy
 					}
 				}
 			}
-			Console.WriteLine("");
-			Console.WriteLine("Looking for user " + loginName);
+			if (Program.beVerbose)
+			{
+				Console.WriteLine("");
+				Console.WriteLine("Looking for user " + loginName);
+			}
 			SPUser User = null;
 			try
 			{
@@ -112,8 +115,11 @@ namespace SharePointListCopy
 						bool r = CreateLocalAccount(shortLoginName, fullName, out domain);
 						if (r)
 						{
-							Console.WriteLine("");
-							Console.WriteLine("Creating user " + fullName + " (" + shortLoginName + ")");
+							if (Program.beVerbose)
+							{
+								Console.WriteLine("");
+								Console.WriteLine("Creating user " + fullName + " (" + shortLoginName + ")");
+							}
 							web.SiteUsers.Add(domain + "\\" + shortLoginName, "", fullName, "");
 							User = web.EnsureUser(shortLoginName);
 						}
@@ -126,7 +132,10 @@ namespace SharePointListCopy
 				userid = User.ID;
 			}
 			userIDCache.Add(loginName, userid);
-			Console.WriteLine("Found user " + loginName + " and cached user ID " + userid);
+			if (Program.beVerbose)
+			{
+				Console.WriteLine("Found user " + loginName + " and cached user ID " + userid);
+			}
 			return userid.ToString();
 		}
 
@@ -370,8 +379,11 @@ namespace SharePointListCopy
 				listNameURL = GetListNameURL(source);
 				dest_site = destSiteURL + listNameURL;
 				string[] bits = { source, dest_site, dest_path };
-				Console.WriteLine("");
-				Console.WriteLine("Adding site list: " + bits[0] + " copying to " + bits[1]);
+				if (Program.beVerbose)
+				{
+					Console.WriteLine("");
+					Console.WriteLine("Adding site list: " + bits[0] + " copying to " + bits[1]);
+				}
 				r.Add(bits);
 			}
 			return r;

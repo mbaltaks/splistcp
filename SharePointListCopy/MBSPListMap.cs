@@ -253,9 +253,12 @@ namespace SharePointListCopy
 						SPWebTemplateCollection Templates = web.GetAvailableWebTemplates(1033);
 						SPWebTemplate siteTemplate = Templates[Program.newSiteTemplate];
 						string site_name = site.Substring(site.LastIndexOf('/') + 1);
-						Console.WriteLine("");
-						Console.WriteLine("");
-						Console.WriteLine("Creating site " + site_name + " from template " + Program.newSiteTemplate);
+						if (Program.beVerbose)
+						{
+							Console.WriteLine("");
+							Console.WriteLine("");
+							Console.WriteLine("Creating site " + site_name + " from template " + Program.newSiteTemplate);
+						}
 						web.Webs.Add(site_name, site_name, "", 1033, siteTemplate, false, false);
 						sc = new SPSite(site);
 						web = sc.OpenWeb();
@@ -265,9 +268,12 @@ namespace SharePointListCopy
 						SPWebTemplateCollection Templates = web.GetAvailableWebTemplates(1033);
 						SPWebTemplate siteTemplate = Templates["STS#1"];
 						string site_name = site.Substring(site.LastIndexOf('/') + 1);
-						Console.WriteLine("");
-						Console.WriteLine("");
-						Console.WriteLine("Creating blank site " + site_name);
+						if (Program.beVerbose)
+						{
+							Console.WriteLine("");
+							Console.WriteLine("");
+							Console.WriteLine("Creating blank site " + site_name);
+						}
 						web.Webs.Add(site_name, site_name, "", 1033, siteTemplate, false, false);
 						sc = new SPSite(site);
 						web = sc.OpenWeb();
@@ -541,7 +547,10 @@ namespace SharePointListCopy
 				)
 				)
 			{
-				Console.WriteLine("Updating display name of " + internalName + " to " + displayName);
+				if (Program.beVerbose)
+				{
+					Console.WriteLine("Updating display name of " + internalName + " to " + displayName);
+				}
 				SPField f = list.Fields.GetFieldByInternalName(internalName);
 				f.Title = displayName;
 				f.Update(true);
@@ -556,7 +565,10 @@ namespace SharePointListCopy
 				if (internalName.Equals(listKeyFieldInternal)
 					&& ListFieldInternalNameFound(list, internalName))
 				{
-					Console.WriteLine("Updating display name of key field " + internalName + " to " + displayName);
+					if (Program.beVerbose)
+					{
+						Console.WriteLine("Updating display name of key field " + internalName + " to " + displayName);
+					}
 					SPField f = list.Fields.GetFieldByInternalName(internalName);
 					f.Title = displayName;
 					f.Update(true);
@@ -629,7 +641,10 @@ namespace SharePointListCopy
 			}
 			if (!exists)
 			{
-				Console.Out.WriteLine("Adding field " + displayName + " to list " + list.Title);
+				if (Program.beVerbose)
+				{
+					Console.Out.WriteLine("Adding field " + displayName + " to list " + list.Title);
+				}
 				// Modify the XML to have only the display name.
 				node.Attributes["Name"].Value = displayName;
 				newInternalName = list.Fields.AddFieldAsXml(node.OuterXml);
@@ -747,8 +762,11 @@ namespace SharePointListCopy
 			}
 			catch
 			{
-				System.Console.Out.WriteLine("");
-				System.Console.Out.WriteLine("Creating folder " + this_folder);
+				if (Program.beVerbose)
+				{
+					System.Console.Out.WriteLine("");
+					System.Console.Out.WriteLine("Creating folder " + this_folder);
+				}
 				this_level = folder.SubFolders.Add(this_folder);
 				this_level.Item["Created"] = created;
 				this_level.Item["Modified"] = modified;
@@ -783,8 +801,11 @@ namespace SharePointListCopy
 				{
 					while (newValue.Contains(thisKey.ToString()))
 					{
-						Console.WriteLine("");
-						Console.WriteLine("Replacing " + thisKey.ToString() + " in " + newValue);
+						if (Program.beVerbose)
+						{
+							Console.WriteLine("");
+							Console.WriteLine("Replacing " + thisKey.ToString() + " in " + newValue);
+						}
 						newValue = newValue.Replace(thisKey.ToString(), replacements[thisKey].ToString());
 					}
 				}

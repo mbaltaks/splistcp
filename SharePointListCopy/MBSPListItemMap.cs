@@ -265,15 +265,21 @@ namespace SharePointListCopy
 			System.Net.WebClient client = new System.Net.WebClient();
 			client.Credentials = Program.getSourceCredentials();
 			string localPath = Program.tempFilePath + "/" + itemName;
-			System.Console.Out.WriteLine("");
-			System.Console.Out.WriteLine("Downloading " + fileURL);
+			if (Program.beVerbose)
+			{
+				System.Console.Out.WriteLine("");
+				System.Console.Out.WriteLine("Downloading " + fileURL);
+			}
 			client.DownloadFile(fileURL, localPath);
 
 			FileStream localFile = File.OpenRead(localPath);
 			//metadataTable.Add("vti_title", title);
 			SPFolder f = listMap.EnsureFolderPathExists(listMap.destList.RootFolder, destFolderPath);
-			System.Console.Out.WriteLine("Adding " + f.ServerRelativeUrl + "/"
-				+ itemName);
+			if (Program.beVerbose)
+			{
+				System.Console.Out.WriteLine("Adding " + f.ServerRelativeUrl + "/"
+					+ itemName);
+			}
 			Hashtable metadataTable = new Hashtable();
 			SPFileCollection files = f.Files;
 			SPFile newFile = files.Add(f.ServerRelativeUrl + "/" + itemName, localFile, metadataTable, true);
@@ -374,8 +380,11 @@ namespace SharePointListCopy
 						{
 							string fileName = downloadUrl.Substring(downloadUrl.LastIndexOf('/') + 1);
 							string downloadPath = Program.tempFilePath + "/" + fileName;
-							System.Console.Out.WriteLine("");
-							System.Console.Out.WriteLine("Downloading " + downloadUrl);
+							if (Program.beVerbose)
+							{
+								System.Console.Out.WriteLine("");
+								System.Console.Out.WriteLine("Downloading " + downloadUrl);
+							}
 							try
 							{
 								client.DownloadFile(downloadUrl, downloadPath);
@@ -384,7 +393,10 @@ namespace SharePointListCopy
 							{
 								Console.WriteLine(e.Message);
 							}
-							Console.WriteLine("Attaching " + fileName);
+							if (Program.beVerbose)
+							{
+								Console.WriteLine("Attaching " + fileName);
+							}
 							byte[] fileContents = MBSPSiteMap.ByteArrayFromFilePath(downloadPath);
 							newItem.Attachments.Add(fileName, fileContents);
 							File.Delete(downloadPath);

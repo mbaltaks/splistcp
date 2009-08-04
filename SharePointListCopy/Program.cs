@@ -59,6 +59,7 @@ namespace SharePointListCopy
 		public static string sourceCredentialsUsername = "";
 		public static string sourceCredentialsPassword = "";
 		public static bool skipOldVersions = false;
+		public static bool beVerbose = false;
 		//public static string logFilePath = "";
 		//public static StreamWriter logFile;
 
@@ -125,6 +126,7 @@ namespace SharePointListCopy
 			options.Add("--source-credentials-username", "Provide a username as part of the credentials used to access the source sharepoint site.");
 			options.Add("--source-credentials-password", "Provide a password as part of the credentials used to access the source sharepoint site.");
 			options.Add("--skip-old-versions", "Don't bother looking up and copying across old versions, just keep the most recent version.");
+			options.Add("--verbose", "Print extra operational messages about progress.");
 			//options.Add("--always-enable-versioning", "");
 			//options.Add("--doclibs-only", "");
 			//options.Add("--lists-only", "");
@@ -178,6 +180,10 @@ namespace SharePointListCopy
 			if (optionValues.ContainsKey("--skip-old-versions"))
 			{
 				skipOldVersions = true;
+			}
+			if (optionValues.ContainsKey("--verbose"))
+			{
+				beVerbose = true;
 			}
 			if (optionValues.ContainsKey("--single-list"))
 			{
