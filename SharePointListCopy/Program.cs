@@ -345,7 +345,7 @@ namespace SharePointListCopy
 			Console.WriteLine("splistcp http://source.server/ http://destination.server/");
 			Console.WriteLine("splistcp --single-list http://source.server/path/list http://destination.server/path/list");
 			Console.WriteLine("splistcp --single-list \"http://source.server/site/doclib/Forms/AllItems.aspx\" \"http://destination.server/newsite/doclib\" \"Top Parent Folder/folder2\"");
-			Console.WriteLine("splistcp --single-list --avoid-duplicates \"http://source.server/site/List Name\" \"http://destination.server/newsite/New List\"");
+			Console.WriteLine("splistcp --single-list --verbose --create-site-from-template=\"MyTemplate.stp\" \"http://source.server/site/List Name\" \"http://destination.server/newsite/New List\"");
 			Console.WriteLine("");
 			Console.WriteLine("Note: this tool must be run on the destination SharePoint 2007 server, using an account that has read access to the remote site, and full control on the destination site.");
 		}
