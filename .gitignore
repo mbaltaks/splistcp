@@ -2,3 +2,5 @@
 .DS_Store
 SharePointListCopy/bin/
 SharePointListCopy/obj/
+*.csproj.user
+*.suo
