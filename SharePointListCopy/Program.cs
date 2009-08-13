@@ -23,10 +23,6 @@
 /*
  * Note: this tool must be run on the actual destination server.
  *
- * Known Issues:
- * - Doesn't yet handle matching lookup fields within the list, such as
- *   references to items in other lists.
- * 
  * TODO:
  * - support MOSS2007 as source
  * - support lists with folders
@@ -51,6 +47,7 @@ namespace SharePointListCopy
 		static Hashtable options = new Hashtable();
 		static Hashtable optionValues = new Hashtable();
 		static ArrayList lists = new ArrayList();
+		static ArrayList redoLists = new ArrayList();
 		static Hashtable replacements = new Hashtable();
 		public static bool singleList = false;
 		public static bool createBlankSite = false;
@@ -60,6 +57,7 @@ namespace SharePointListCopy
 		public static string sourceCredentialsPassword = "";
 		public static bool skipOldVersions = false;
 		public static bool beVerbose = false;
+		public static Hashtable listIDs = new Hashtable();
 		//public static string logFilePath = "";
 		//public static StreamWriter logFile;
 
@@ -83,6 +81,28 @@ namespace SharePointListCopy
 				{
 					MBSPListMap listMap;
 					listMap = new MBSPListMap(list[0], list[1], list[2], replacements);
+					if (listMap.HasLookupFields())
+					{
+						if (Program.beVerbose)
+						{
+							Console.WriteLine("List " + listMap.GetSourceListName() + " has at least one Lookup field, leaving till last.");
+						}
+						redoLists.Add(list);
+					}
+					else
+					{
+						listMap.Init();
+						listIDs[listMap.SourceListID()] = listMap.DestListID();
+						listMap.Copy();
+					}
+					listMap.Close();
+				}
+				foreach (string[] list in redoLists)
+				{
+					MBSPListMap listMap;
+					listMap = new MBSPListMap(list[0], list[1], list[2], replacements);
+					listMap.Init();
+					listIDs[listMap.SourceListID()] = listMap.DestListID();
 					listMap.Copy();
 					listMap.Close();
 				}
@@ -98,6 +118,7 @@ namespace SharePointListCopy
 				//logFile.Close();
 			}
 			//System.Threading.Thread.Sleep(5000);
+			//Console.ReadLine();
 		}
 
 

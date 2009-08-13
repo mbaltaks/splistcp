@@ -52,6 +52,8 @@ namespace SharePointListCopy
 		SPListTemplateType destListType = SPListTemplateType.DocumentLibrary;
 		bool sourceListEnableVersions = false;
 		bool destListEnableVersions = false;
+		string sourceListID = "";
+		string destListID = "";
 		public Hashtable listFields = new Hashtable();
 		public Hashtable reverseListFields = new Hashtable();
 		public Hashtable newListFields = new Hashtable();
@@ -63,11 +65,14 @@ namespace SharePointListCopy
 		bool wrongType = false;
 		MBSPListItemMap topLevel;
 		Hashtable replacements;
+		bool hasLookupFields = false;
+		XmlNode sourceListNode = null;
 
 
 		public MBSPListMap(string raw_source, string raw_dest_site, string raw_dest_path,
 			Hashtable aReplacements)
 		{
+			replacements = aReplacements;
 			Console.WriteLine("");
 			Console.WriteLine("Copying list " + raw_source);
 			try
@@ -81,24 +86,13 @@ namespace SharePointListCopy
 			}
 			listService.Credentials = Program.getSourceCredentials();
 			GetRealListName();
-			web = GetSPWeb(destSiteURL);
-			if (web == null)
-			{
-				return;
-			}
-			if (destListName.Length < 1)
-			{
-				destListName = sourceListName;
-			}
-			destList = GetSPList(web, destListName);
-
-			XmlNode sourceListNode = null;
+			sourceListNode = null;
 			try
 			{
 				sourceListNode = GetListMetadata(sourceSiteURL,
 					sourceListName, listService, Program.getSourceCredentials(), out sourceListDescription,
 					out sourceListAuthor, out sourceListCreated, out sourceListModified,
-					out sourceListType, out sourceListEnableVersions);
+					out sourceListType, out sourceListEnableVersions, out sourceListID);
 			}
 			catch (Exception e)
 			{
@@ -107,6 +101,36 @@ namespace SharePointListCopy
 				Console.WriteLine(e.Message);
 				return;
 			}
+
+			XmlNamespaceManager nsmgr = new XmlNamespaceManager(sourceListNode.OwnerDocument.NameTable);
+			nsmgr.AddNamespace("soap", "http://schemas.microsoft.com/sharepoint/soap/");
+			string xpath = "/soap:Fields/soap:Field[@Type='Lookup']";
+			XmlNodeList fields = sourceListNode.SelectNodes(xpath, nsmgr);
+			foreach (XmlNode field in fields)
+			{
+				// Document libraries have lots of Lookup fields, with List set to "Docs".
+				if (!field.Attributes["List"].Value.Equals("Docs"))
+				{
+					hasLookupFields = true;
+					break; // One is enough.
+				}
+			}
+		}
+
+
+		public bool Init()
+		{
+			web = GetSPWeb(destSiteURL);
+			if (web == null)
+			{
+				return false;
+			}
+			if (destListName.Length < 1)
+			{
+				destListName = sourceListName;
+			}
+			destList = GetSPList(web, destListName);
+
 
 			if (destList == null)
 			{
@@ -124,7 +148,7 @@ namespace SharePointListCopy
 				{
 					wrongType = true;
 					Console.WriteLine("Destination list " + destListName + " already exists, but of a different type.");
-					return;
+					return false;
 				}
 				else
 				{
@@ -138,20 +162,20 @@ namespace SharePointListCopy
 				XmlNode destListNode = GetListMetadata(destSiteURL,
 					destListName, listService, System.Net.CredentialCache.DefaultCredentials, out destListDescription,
 					out destListAuthor, out destListCreated, out destListModified,
-					out destListType, out destListEnableVersions);
+					out destListType, out destListEnableVersions, out destListID);
 			}
 			catch (Exception e)
 			{
 				Console.WriteLine("");
 				Console.WriteLine("Problem accessing the destination SharePoint list web service at " + destSiteURL + listServiceURL);
 				Console.WriteLine(e.Message);
-				return;
+				return false;
 			}
 			listService.Url = sourceSiteURL + listServiceURL;
 			listService.Credentials = Program.getSourceCredentials();
-			replacements = aReplacements;
 
 			topLevel = new MBSPListItemMap(this, destFolderPath, true);
+			return true;
 		}
 
 
@@ -331,7 +355,8 @@ namespace SharePointListCopy
 			out DateTime listCreated,
 			out DateTime listModified,
 			out SPListTemplateType listType,
-			out bool listEnableVersions)
+			out bool listEnableVersions,
+			out string listID)
 		{
 			listService.Url = site + listServiceURL;
 			listService.Credentials = credentials;
@@ -358,6 +383,7 @@ namespace SharePointListCopy
 			listAuthor = MBSPSiteMap.GetLoginNameFromSharePointID(listNode.Attributes["Author"].Value, site, credentials);
 			listType = GetTypeFromTypeCode(listNode.Attributes["ServerTemplate"].Value);
 			listEnableVersions = enableVersions;
+			listID = listNode.Attributes["ID"].Value;
 			return listNode;
 		}
 
@@ -647,6 +673,20 @@ namespace SharePointListCopy
 				}
 				// Modify the XML to have only the display name.
 				node.Attributes["Name"].Value = displayName;
+				// Switch list IDs for the Lookup field
+				if (node.Attributes["Type"].Value == "Lookup")
+				{
+					if (Program.listIDs.ContainsKey(node.Attributes["List"].Value))
+					{
+						node.Attributes["List"].Value = Program.listIDs[node.Attributes["List"].Value].ToString();
+					}
+					else
+					{
+						string listName = MBSPSiteMap.GetListNameFromID(sourceSiteURL, node.Attributes["List"].Value);
+						string id = list.ParentWeb.Lists[listName].ID.ToString();
+						node.Attributes["List"].Value = id;
+					}
+				}
 				newInternalName = list.Fields.AddFieldAsXml(node.OuterXml);
 				newListFields.Add(displayName, newInternalName);
 				if (!reverseNewListFields.ContainsKey(displayName))
@@ -900,6 +940,24 @@ namespace SharePointListCopy
 		public bool GetDestListEnableVersions()
 		{
 			return destListEnableVersions;
+		}
+
+
+		public bool HasLookupFields()
+		{
+			return hasLookupFields;
+		}
+
+
+		public string SourceListID()
+		{
+			return sourceListID;
+		}
+
+
+		public string DestListID()
+		{
+			return destListID;
 		}
 	}
 }

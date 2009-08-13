@@ -388,5 +388,23 @@ namespace SharePointListCopy
 			}
 			return r;
 		}
+
+
+		public static string GetListNameFromID(string sourceSiteURL, string listID)
+		{
+			SharePointSiteDataWebService.SiteData siteService = new SharePointSiteDataWebService.SiteData();
+			siteService.Url = sourceSiteURL + "/_vti_bin/SiteData.asmx";
+			siteService.Credentials = Program.getSourceCredentials();
+			SharePointSiteDataWebService._sList[] lists;
+			siteService.GetListCollection(out lists);
+			foreach (SharePointSiteDataWebService._sList list in lists)
+			{
+				if (list.InternalName == listID)
+				{
+					return list.Title;
+				}
+			}
+			return "";
+		}
 	}
 }
