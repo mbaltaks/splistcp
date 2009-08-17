@@ -58,6 +58,7 @@ namespace SharePointListCopy
 		public static bool skipOldVersions = false;
 		public static bool beVerbose = false;
 		public static Hashtable listIDs = new Hashtable();
+		public static bool forceVersioning = false;
 		//public static string logFilePath = "";
 		//public static StreamWriter logFile;
 
@@ -148,7 +149,7 @@ namespace SharePointListCopy
 			options.Add("--source-credentials-password", "Provide a password as part of the credentials used to access the source sharepoint site.");
 			options.Add("--skip-old-versions", "Don't bother looking up and copying across old versions, just keep the most recent version.");
 			options.Add("--verbose", "Print extra operational messages about progress.");
-			//options.Add("--always-enable-versioning", "");
+			options.Add("--force-versioning", "Ensure that versioning is turned on for the destination list(s), no matter what setting the original list(s) used.");
 			//options.Add("--doclibs-only", "");
 			//options.Add("--lists-only", "");
 
@@ -205,6 +206,10 @@ namespace SharePointListCopy
 			if (optionValues.ContainsKey("--verbose"))
 			{
 				beVerbose = true;
+			}
+			if (optionValues.ContainsKey("--force-versioning"))
+			{
+				forceVersioning = true;
 			}
 			if (optionValues.ContainsKey("--single-list"))
 			{

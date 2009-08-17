@@ -254,6 +254,10 @@ namespace SharePointListCopy
 		{
 			Guid newList = web.Lists.Add(name, description, type);
 			SPList destList = web.Lists[newList];
+			if (Program.forceVersioning)
+			{
+				enableVersions = true;
+			}
 			destList.EnableVersioning = enableVersions;
 			destList.Update();
 			// We would really like to set the list metadata here,
