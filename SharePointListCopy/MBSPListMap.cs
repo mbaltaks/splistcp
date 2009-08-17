@@ -729,7 +729,7 @@ namespace SharePointListCopy
 			}
 			XmlNode ndListItems;
 			listService.Credentials = credentials;
-			ndListItems = listService.GetListItems(listName, null, ndQuery, ndViewFields, null, ndQueryOptions, null);
+			ndListItems = listService.GetListItems(listName, null, ndQuery, ndViewFields, "999999", ndQueryOptions, null);
 			return ndListItems;
 		}
 
