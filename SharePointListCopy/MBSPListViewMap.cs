@@ -43,9 +43,15 @@ namespace SharePointListCopy
 				{
 					Console.WriteLine("");
 				}
-				if ((listType.Equals(SPListTemplateType.DocumentLibrary)
-					|| listType.Equals(SPListTemplateType.PictureLibrary))
-					&& s.Attributes["DisplayName"].Value.ToString().Equals("Explorer View"))
+				if (listType.Equals(SPListTemplateType.DocumentLibrary)
+					&& (s.Attributes["DisplayName"].Value.ToString().Equals("Explorer View")
+					|| s.Attributes["DisplayName"].Value.ToString().Equals("All Documents")))
+				{
+					continue;
+				}
+				if (listType.Equals(SPListTemplateType.PictureLibrary)
+					&& (s.Attributes["DisplayName"].Value.ToString().Equals("Explorer View")
+					|| s.Attributes["DisplayName"].Value.ToString().Equals("All Pictures")))
 				{
 					continue;
 				}
@@ -60,7 +66,23 @@ namespace SharePointListCopy
 				}
 				if (listType.Equals(SPListTemplateType.Events)
 					&& (s.Attributes["DisplayName"].Value.ToString().Equals("Calendar")
-					|| s.Attributes["DisplayName"].Value.ToString().Equals("Current Events")))
+					|| s.Attributes["DisplayName"].Value.ToString().Equals("Current Events")
+					|| s.Attributes["DisplayName"].Value.ToString().Equals("All Events")))
+				{
+					continue;
+				}
+				if (listType.Equals(SPListTemplateType.DiscussionBoard)
+					&& (s.Attributes["DisplayName"].Value.ToString().Equals("Threaded")))
+				{
+					continue;
+				}
+				if (listType.Equals(SPListTemplateType.Contacts)
+					&& (s.Attributes["DisplayName"].Value.ToString().Equals("All Contacts")))
+				{
+					continue;
+				}
+				if (listType.Equals(SPListTemplateType.Announcements)
+					&& (s.Attributes["DisplayName"].Value.ToString().Equals("All Items")))
 				{
 					continue;
 				}
