@@ -575,6 +575,10 @@ namespace SharePointListCopy
 				|| (destListType.Equals(SPListTemplateType.IssueTracking)
 				&& (internalName.Equals("InstanceID"))
 				)
+				|| (destListType.Equals(SPListTemplateType.Events)
+				&& ((internalName.Equals("EventDate"))
+				|| (internalName.Equals("EndDate"))
+				))
 				)
 			{
 				if (Program.beVerbose)
