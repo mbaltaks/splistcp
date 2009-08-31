@@ -64,7 +64,7 @@ namespace SharePointListCopy
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("Error creating local account: " + ex.Message);
+				Console.WriteLine("Error trying to create local account '" + loginName + "': " + ex.Message);
 				return false;
 			}
 		}
