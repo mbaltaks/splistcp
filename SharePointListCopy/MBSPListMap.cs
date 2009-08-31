@@ -263,6 +263,8 @@ namespace SharePointListCopy
 				destList.EnableVersioning = enableVersions;
 				destList.Update();
 			}
+			destList.OnQuickLaunch = true;
+			destList.Update();
 			// We would really like to set the list metadata here,
 			// but there isn't a way to do that.
 			return destList;
