@@ -133,6 +133,7 @@ namespace SharePointListCopy
 			string sourceListName)
 		{
 			string objectType = "";
+			bool SurveyUserWarningShown = false;
 			MBSPListItemMap newItem = new MBSPListItemMap(listMap, "");
 
 			foreach (XmlAttribute attr in node.Attributes)
@@ -159,6 +160,22 @@ namespace SharePointListCopy
 						if (!attr.Value.ToString().Equals("0"))
 						{
 							newItem.hasAttachments = true;
+						}
+						break;
+					case "ows_Author":
+					case "ows_Editor":
+						// We only need to show this warning once.
+						if (!SurveyUserWarningShown)
+						{
+							if (SPListTemplateType.Survey.Equals(this.listMap.SourceListType()))
+							{
+								if (attr.Value.Equals("***"))
+								{
+									System.Console.Out.WriteLine("");
+									System.Console.Out.WriteLine("WARNING: This survey is set to not show user names, and so will probably fail to copy. Please change the source list settings to copy this list.");
+									SurveyUserWarningShown = true;
+								}
+							}
 						}
 						break;
 				}
@@ -293,8 +310,11 @@ namespace SharePointListCopy
 			SPListItem newItem, string sourceSiteURL)
 		{
 			bool versions = newItem.ParentList.EnableVersioning;
-			newItem.ParentList.EnableVersioning = false;
-			newItem.ParentList.Update();
+			if (newItem.ParentList.BaseTemplate != SPListTemplateType.Survey)
+			{
+				newItem.ParentList.EnableVersioning = false;
+				newItem.ParentList.Update();
+			}
 			foreach (Object attributeName in attributeNames)
 			{
 				SetListItemAttribute(newItem, attributeName.ToString(),
@@ -304,8 +324,11 @@ namespace SharePointListCopy
 			/*try
 			{*/
 			newItem.Update();
-			newItem.ParentList.EnableVersioning = versions;
-			newItem.ParentList.Update();
+			if (newItem.ParentList.BaseTemplate != SPListTemplateType.Survey)
+			{
+				newItem.ParentList.EnableVersioning = versions;
+				newItem.ParentList.Update();
+			}
 			/*}
 			catch (Exception e)
 			{

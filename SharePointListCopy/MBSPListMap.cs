@@ -254,12 +254,15 @@ namespace SharePointListCopy
 		{
 			Guid newList = web.Lists.Add(name, description, type);
 			SPList destList = web.Lists[newList];
-			if (Program.forceVersioning)
+			if (destList.BaseTemplate != SPListTemplateType.Survey)
 			{
-				enableVersions = true;
+				if (Program.forceVersioning)
+				{
+					enableVersions = true;
+				}
+				destList.EnableVersioning = enableVersions;
+				destList.Update();
 			}
-			destList.EnableVersioning = enableVersions;
-			destList.Update();
 			// We would really like to set the list metadata here,
 			// but there isn't a way to do that.
 			return destList;
@@ -966,6 +969,11 @@ namespace SharePointListCopy
 		public string DestListID()
 		{
 			return destListID;
+		}
+
+		public SPListTemplateType SourceListType()
+		{
+			return sourceListType;
 		}
 	}
 }
