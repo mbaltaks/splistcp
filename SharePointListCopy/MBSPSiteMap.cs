@@ -72,6 +72,8 @@ namespace SharePointListCopy
 
 		public static string EnsureAUserExists(string loginName, string fullName, SPWeb web)
 		{
+			loginName = loginName.ToLower();
+			defaultDomain = defaultDomain.ToLower();
 			if (userIDCache.Count > 0)
 			{
 				ICollection userkeys = userIDCache.Keys;
@@ -120,6 +122,7 @@ namespace SharePointListCopy
 								Console.WriteLine("");
 								Console.WriteLine("Creating user " + fullName + " (" + shortLoginName + ")");
 							}
+							domain = domain.ToLower();
 							web.SiteUsers.Add(domain + "\\" + shortLoginName, "", fullName, "");
 							User = web.EnsureUser(shortLoginName);
 						}
@@ -218,7 +221,7 @@ namespace SharePointListCopy
 			{
 				if (userList[u].Attributes["ID"].Value.Equals(ID))
 				{
-					loginName = userList[u].Attributes["LoginName"].Value;
+					loginName = userList[u].Attributes["LoginName"].Value.ToLower();
 					if (siteURL.Equals(siteURL1))
 					{
 						userCache1.Add(ID, loginName);
@@ -237,6 +240,7 @@ namespace SharePointListCopy
 		// Look up the source SharePoint user ID from the login name.
 		public static string GetSharePointIDFromLoginName(string loginName, string siteURL, System.Net.ICredentials credentials)
 		{
+			loginName = loginName.ToLower();
 			if (siteURL1.Length < 1)
 			{
 				siteURL1 = siteURL;
@@ -288,7 +292,7 @@ namespace SharePointListCopy
 			XmlNodeList userList = users.SelectNodes(userQuery);
 			for (int u = 0; u < userList.Count; u++)
 			{
-				if (userList[u].Attributes["LoginName"].Value.Equals(loginName))
+				if (userList[u].Attributes["LoginName"].Value.ToLower().Equals(loginName))
 				{
 					ID = userList[u].Attributes["ID"].Value;
 					if (siteURL.Equals(siteURL1))
