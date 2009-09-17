@@ -266,7 +266,18 @@ namespace SharePointListCopy
 						fileURL = child.Attributes["url"].Value.ToString();
 						SPListItem newItem = AddRemoteFile(fileName, fileURL, destFolderPath);
 						// now set created date and created by for this version
-						attributes["ows_Editor"] = MBSPSiteMap.GetSharePointIDFromLoginName(child.Attributes["createdBy"].Value.ToString(), sourceSiteURL, Program.getSourceCredentials());
+						string SPUserID = MBSPSiteMap.GetSharePointIDFromLoginName(child.Attributes["createdBy"].Value.ToString(), sourceSiteURL, Program.getSourceCredentials());
+						// When a login name from the version history is not found,
+						// perhaps because that user has been renamed,
+						// use the last known editor login name for this version.
+						if (SPUserID.Length > 0)
+						{
+							attributes["ows_Editor"] = SPUserID;
+						}
+						else
+						{
+							attributes["ows_Editor"] = editor;
+						}
 						attributes["ows_Modified"] = SPAttributeDateFormat(child.Attributes["created"].Value.ToString());
 						SetListItemAttributes(attributeNames, attributes, newItem, sourceSiteURL);
 					}
