@@ -910,8 +910,8 @@ namespace SharePointListCopy
 					return SPListTemplateType.Meetings;
 				//case "201":
 				//	return SPListTemplateType.Agenda;
-				case "202":
-					return SPListTemplateType.MeetingUser;
+				//case "202":
+				//	return SPListTemplateType.MeetingUser;
 				case "204":
 					return SPListTemplateType.Decision;
 				case "207":
