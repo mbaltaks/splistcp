@@ -75,6 +75,14 @@ namespace SharePointListCopy
 			{
 				cached = false;
 			}
+			if (Program.beVerbose)
+			{
+				if (displayName.Equals("Title"))
+				{
+					//System.Console.Out.WriteLine("");
+					//System.Console.Out.WriteLine("Adding a new list item: " + value.ToString());
+				}
+			}
 			if (cached)
 			{
 				string newInternalName = newListFields[displayName].ToString();
@@ -208,20 +216,29 @@ namespace SharePointListCopy
 			d = d.Substring(d.IndexOf('/') + 1);
 			string month = d.Substring(0, d.IndexOf('/'));
 			int monthnum = System.Convert.ToInt32(month, 10);
-			if (MBSPSiteMap.versionsUseUSDates || (monthnum > 12))
+			if (Program.versionsUseUSDates || (monthnum > 12))
 			{
 				string s = day;
 				day = month;
 				month = s;
-				MBSPSiteMap.versionsUseUSDates = true;
+				Program.versionsUseUSDates = true;
 			}
 			d = d.Substring(d.IndexOf('/') + 1);
 			string year = d.Substring(0, d.IndexOf(' '));
 			d = d.Substring(d.IndexOf(' ') + 1);
 			string hour = d.Substring(0, d.IndexOf(':'));
 			d = d.Substring(d.IndexOf(':') + 1);
-			string minute = d.Substring(0, d.IndexOf(' '));
-			d = d.Substring(d.IndexOf(' ') + 1);
+			string minute = "";
+			if (d.IndexOf(' ') > 0)
+			{
+				minute = d.Substring(0, d.IndexOf(' '));
+				d = d.Substring(d.IndexOf(' ') + 1);
+			}
+			else // Add support for date "31/08/2005 16:21"
+			{
+				minute = d;
+				d = "";
+			}
 			int h = System.Convert.ToInt32(hour, 10);
 			if (d.Equals("PM"))
 			{
@@ -407,6 +424,8 @@ namespace SharePointListCopy
 					else
 					{
 						newItem = listMap.destList.Items.Add();
+						//System.Console.Out.WriteLine("");
+						//System.Console.Out.WriteLine("Adding a new list item: " + subItem.itemName);
 					}
 					if (subItem.hasAttachments && newItem != null)
 					{

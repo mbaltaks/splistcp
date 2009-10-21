@@ -74,6 +74,7 @@ namespace SharePointListCopy
 		{
 			replacements = aReplacements;
 			Console.WriteLine("");
+			Console.WriteLine("");
 			Console.WriteLine("Copying list " + raw_source);
 			try
 			{
@@ -291,6 +292,8 @@ namespace SharePointListCopy
 							Console.WriteLine("");
 							Console.WriteLine("");
 							Console.WriteLine("Creating site " + site_name + " from template " + Program.newSiteTemplate);
+							Console.WriteLine("");
+							Console.WriteLine("");
 						}
 						web.Webs.Add(site_name, site_name, "", 1033, siteTemplate, false, false);
 						sc = new SPSite(site);
@@ -306,6 +309,8 @@ namespace SharePointListCopy
 							Console.WriteLine("");
 							Console.WriteLine("");
 							Console.WriteLine("Creating blank site " + site_name);
+							Console.WriteLine("");
+							Console.WriteLine("");
 						}
 						web.Webs.Add(site_name, site_name, "", 1033, siteTemplate, false, false);
 						sc = new SPSite(site);
