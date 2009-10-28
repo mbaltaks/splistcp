@@ -44,13 +44,13 @@ namespace SharePointListCopy
 					Console.WriteLine("");
 				}
 				if (listType.Equals(SPListTemplateType.DocumentLibrary)
-					&& (s.Attributes["DisplayName"].Value.ToString().Equals("Explorer View")
+					&& (s.Attributes["Url"].Value.ToString().EndsWith("/Forms/WebFldr.aspx")
 					|| s.Attributes["DisplayName"].Value.ToString().Equals("All Documents")))
 				{
 					continue;
 				}
 				if (listType.Equals(SPListTemplateType.PictureLibrary)
-					&& (s.Attributes["DisplayName"].Value.ToString().Equals("Explorer View")
+					&& (s.Attributes["Url"].Value.ToString().EndsWith("/Forms/WebFldr.aspx")
 					|| s.Attributes["DisplayName"].Value.ToString().Equals("All Pictures")))
 				{
 					continue;
@@ -129,6 +129,24 @@ namespace SharePointListCopy
 						newInternalName = aListMap.reverseNewListFields[displayName].ToString();
 					}
 					viewFields.Add(newInternalName);
+				}
+				// Replace source internal field names with new internal field names in the query.
+				// Get all <FieldRef> elements
+				XmlNamespaceManager nsmgr = new XmlNamespaceManager(v.OwnerDocument.NameTable);
+				nsmgr.AddNamespace("soap", "http://schemas.microsoft.com/sharepoint/soap/");
+				string xpath = "soap:Query//soap:FieldRef";
+				XmlNodeList fields = v.SelectNodes(xpath, nsmgr);
+				foreach (XmlNode field in fields)
+				{
+					string sourceInternalName = field.Attributes["Name"].Value.ToString();
+					string displayName = aListMap.listFields[sourceInternalName].ToString();
+					string newInternalName = sourceInternalName;
+					if (aListMap.reverseNewListFields.ContainsKey(displayName))
+					{
+						newInternalName = aListMap.reverseNewListFields[displayName].ToString();
+						// Replace the Name attribute.
+						field.Attributes["Name"].Value = newInternalName;
+					}
 				}
 				string query = v.ChildNodes[0].InnerXml;
 				string name = s.Attributes["DisplayName"].Value.ToString();
