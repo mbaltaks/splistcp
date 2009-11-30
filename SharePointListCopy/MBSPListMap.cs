@@ -38,6 +38,7 @@ namespace SharePointListCopy
 		string destListName = "";
 		string destFolderPath = "";
 		SharePointListsWebService.Lists listService = new SharePointListsWebService.Lists();
+		SharePointSiteDataWebService.SiteData siteDataService = new SharePointSiteDataWebService.SiteData();
 		SPWeb web;
 		public SPList destList;
 		string sourceListDescription = "";
@@ -60,6 +61,7 @@ namespace SharePointListCopy
 		public Hashtable reverseNewListFields = new Hashtable();
 		bool newList = false;
 		string listServiceURL = "/_vti_bin/Lists.asmx";
+		string siteDataServiceURL = "/_vti_bin/SiteData.asmx";
 		public string listKeyField = "";
 		string listKeyFieldInternal = "";
 		bool wrongType = false;
@@ -747,8 +749,37 @@ namespace SharePointListCopy
 			}
 			XmlNode ndListItems;
 			listService.Credentials = credentials;
-			ndListItems = listService.GetListItems(listName, null, ndQuery, ndViewFields, "999999", ndQueryOptions, null);
+			ndListItems = listService.GetListItems(listName, null, ndQuery, ndViewFields, System.Int32.MaxValue.ToString(), ndQueryOptions, null);
 			return ndListItems;
+		}
+
+
+		public XmlNode GetAllListItems()
+		{
+			if (sourceListID.Length < 1)
+			{
+				listService.Credentials = Program.getSourceCredentials();
+				XmlNode allLists = listService.GetListCollection();
+				String xpq = "//*[@*]"; //get all nodes
+				XmlNodeList allNodes = allLists.SelectNodes(xpq);
+				for (int i = 0; i < allNodes.Count; i++)
+				{
+					XmlNode listItemNode = allNodes[i];
+					if (sourceListName.Equals(listItemNode.Attributes["Title"].Value.ToString()))
+					{
+						sourceListID = listItemNode.Attributes["ID"].Value.ToString();
+					}
+				}
+			}
+
+			siteDataService.Url = sourceSiteURL + siteDataServiceURL;
+			siteDataService.Credentials = Program.getSourceCredentials();
+			string xml = siteDataService.GetListItems(sourceListID, "", "", System.UInt32.MaxValue);
+			XmlReader xmlReader = XmlReader.Create(new StringReader(xml));
+			XmlDocument xmlDoc = new XmlDocument();
+			XmlNode node = xmlDoc.ReadNode(xmlReader);
+			//Console.WriteLine(xml);
+			return node;
 		}
 
 
@@ -756,7 +787,14 @@ namespace SharePointListCopy
 		{
 			if ((!wrongType) && (topLevel != null))
 			{
-				topLevel.GetAllSubItems(listService, sourceListName, sourceListNameURL);
+				if (Program.preferFolderMetadata)
+				{
+					topLevel.GetAllSubItems(listService, sourceListName, sourceListNameURL);
+				}
+				else
+				{
+					topLevel.GetMoreSubItems(listService, sourceListName, sourceListNameURL);
+				}
 				topLevel.CopyData(sourceSiteURL, sourceListNameURL);
 				MBSPListViewMap v = new MBSPListViewMap(this);
 				return true;
@@ -946,6 +984,12 @@ namespace SharePointListCopy
 		public string GetSourceListName()
 		{
 			return sourceListName;
+		}
+
+
+		public string GetSourceListNameURL()
+		{
+			return sourceListNameURL;
 		}
 
 

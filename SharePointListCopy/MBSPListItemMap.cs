@@ -105,6 +105,145 @@ namespace SharePointListCopy
 
 		// Look for all the items in this part of the list, and add them
 		// to the subItems ArrayList.
+		// http://weblogs.asp.net/wallen/archive/2003/04/02/4725.aspx for XML handling.
+		// http://www.developer.com/xml/article.php/3383961/NET-and-XML-XPath-Queries.htm for Xpath syntax.
+		public void GetMoreSubItems(SharePointListsWebService.Lists listService,
+			string sourceListName, string sourceListNameURL)
+		{
+			XmlNode listNode = listMap.GetAllListItems();
+
+			XmlNamespaceManager nsmgr = new XmlNamespaceManager(listNode.OwnerDocument.NameTable);
+			nsmgr.AddNamespace("s", "uuid:BDC6E3F0-6DA3-11d1-A2A3-00AA00C14882");
+			nsmgr.AddNamespace("dt", "uuid:C2F41010-65B3-11d1-A29F-00AA00C14882");
+			nsmgr.AddNamespace("rs", "urn:schemas-microsoft-com:rowset");
+			nsmgr.AddNamespace("z", "#RowsetSchema");
+			string xpath = "rs:data/z:row";
+			XmlNodeList listItemNodes = listNode.SelectNodes(xpath, nsmgr);
+			foreach (XmlNode listItemNode in listItemNodes)
+			{
+				if (listItemNode.Attributes != null)
+				{
+					GetListItemAllInOne(listItemNode, listService, sourceListName, "");
+				}
+			}
+		}
+
+
+		public bool GetListItemAllInOne(XmlNode node, SharePointListsWebService.Lists listService,
+			string sourceListName, string listRelativeFileURL)
+		{
+			bool SurveyUserWarningShown = false;
+			string itemNameOverride = "";
+			bool useNewItem = true;
+			MBSPListItemMap newItem = new MBSPListItemMap(listMap, "");
+
+			foreach (XmlAttribute attr in node.Attributes)
+			{
+				newItem.attributes.Add(attr.Name, attr.Value);
+				newItem.attributeNames.Add(attr.Name);
+				switch (attr.Name)
+				{
+					case "ows_LinkFilename":
+						newItem.itemName = attr.Value;
+						break;
+					case "ows_FSObjType":
+						if (attr.Value.EndsWith("0"))
+						{
+							newItem.hasFile = true;
+						}
+						break;
+					case "ows_EncodedAbsUrl":
+						if (listRelativeFileURL.Length < 1)
+						{
+							string absFileURL = Uri.UnescapeDataString(attr.Value);
+							string[] paths = new string[] { listMap.GetSourceSiteURL(), listMap.GetSourceListNameURL() };
+							string absListURL = MBSPListMap.CombinePaths(paths);
+							listRelativeFileURL = absFileURL.Replace(absListURL, "");
+							if (listRelativeFileURL.StartsWith("/"))
+							{
+								listRelativeFileURL = listRelativeFileURL.Substring(1);
+							}
+						}
+						if (listRelativeFileURL.Contains("/"))
+						{
+							Console.WriteLine("We have a sub folder!");
+							Console.WriteLine("difference: " + listRelativeFileURL);
+							Console.WriteLine("");
+							newItem.hasSubItems = true;
+							int pos = listRelativeFileURL.IndexOf("/");
+							if (pos > 0)
+							{
+								itemNameOverride = listRelativeFileURL.Substring(0, pos);
+								listRelativeFileURL = listRelativeFileURL.Substring(pos + 1);
+							}
+						}
+						break;
+					case "ows_Attachments":
+						if (!attr.Value.ToString().Equals("0"))
+						{
+							newItem.hasAttachments = true;
+						}
+						break;
+					case "ows_Author":
+					case "ows_Editor":
+						// We only need to show this warning once.
+						if (!SurveyUserWarningShown)
+						{
+							if (SPListTemplateType.Survey.Equals(this.listMap.SourceListType()))
+							{
+								if (attr.Value.Equals("***"))
+								{
+									System.Console.Out.WriteLine("");
+									System.Console.Out.WriteLine("WARNING: This survey is set to not show user names, and so will probably fail to copy. Please change the source list settings to copy this list.");
+									SurveyUserWarningShown = true;
+								}
+							}
+						}
+						break;
+				}
+				//System.Console.Out.WriteLine(attr.Name + ": " + attr.Value);
+			}
+			if (newItem.hasAttachments)
+			{
+				listService.Credentials = Program.getSourceCredentials();
+				XmlNode attachmentsNode = listService.GetAttachmentCollection(sourceListName,
+					newItem.attributes["ows_ID"].ToString());
+				foreach (XmlNode att in attachmentsNode)
+				{
+					newItem.attachmentURLs.Add(att.FirstChild.Value.ToString());
+				}
+			}
+			string[] sourcePaths = new string[] { sourceFolderPath, itemName };
+			string[] destPaths = new string[] { destFolderPath, itemName };
+			newItem.sourceFolderPath = MBSPListMap.CombinePaths(sourcePaths);
+			newItem.destFolderPath = MBSPListMap.CombinePaths(destPaths);
+			if (newItem.hasSubItems)
+			{
+				newItem = new MBSPListItemMap(listMap, "");
+				newItem.hasSubItems = true;
+				newItem.itemName = itemNameOverride;
+				newItem.sourceFolderPath = MBSPListMap.CombinePaths(sourcePaths);
+				newItem.destFolderPath = MBSPListMap.CombinePaths(destPaths);
+				foreach (MBSPListItemMap item in this.subItems)
+				{
+					if (item.itemName.Equals(itemNameOverride))
+					{
+						newItem = item;
+						useNewItem = false;
+					}
+				}
+				newItem.GetListItemAllInOne(node, listService, sourceListName, listRelativeFileURL);
+			}
+			if (useNewItem)
+			{
+				this.subItems.Add(newItem);
+			}
+			return true;
+		}
+
+
+		// Look for all the items in this part of the list, and add them
+		// to the subItems ArrayList.
 		public void GetAllSubItems(SharePointListsWebService.Lists listService,
 			string sourceListName, string sourceListNameURL)
 		{

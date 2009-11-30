@@ -22,6 +22,7 @@
 
 /*
  * Note: this tool must be run on the actual destination server.
+ * Note: may require changes on destination as per http://support.microsoft.com/kb/896861.
  *
  * TODO:
  * - support MOSS2007 as source
@@ -60,6 +61,7 @@ namespace SharePointListCopy
 		public static Hashtable listIDs = new Hashtable();
 		public static bool forceVersioning = false;
 		public static bool versionsUseUSDates = false;
+		public static bool preferFolderMetadata = false;
 		//public static string logFilePath = "";
 		//public static StreamWriter logFile;
 
@@ -112,7 +114,7 @@ namespace SharePointListCopy
 			catch (Exception e)
 			{
 				Console.WriteLine("");
-				Console.WriteLine("** Something has caused this to fail completely:");
+				Console.WriteLine("** ERROR: Something has caused this to fail completely:");
 				Console.WriteLine(e.Message);
 			}
 			finally
@@ -152,6 +154,7 @@ namespace SharePointListCopy
 			options.Add("--verbose", "Print extra operational messages about progress.");
 			options.Add("--force-versioning", "Ensure that versioning is turned on for the destination list(s), no matter what setting the original list(s) used.");
 			options.Add("--versions-use-us-dates", "Specify that the date format for versions is in US date format.");
+			options.Add("--prefer-folder-metadata", "Use the method of finding document library contents that will find folder metadata, but which depends on what is available in the default view.");
 			//options.Add("--doclibs-only", "");
 			//options.Add("--lists-only", "");
 
@@ -216,6 +219,10 @@ namespace SharePointListCopy
 			if (optionValues.ContainsKey("--versions-use-us-dates"))
 			{
 				versionsUseUSDates = true;
+			}
+			if (optionValues.ContainsKey("--prefer-folder-metadata"))
+			{
+				preferFolderMetadata = true;
 			}
 			if (optionValues.ContainsKey("--single-list"))
 			{
@@ -379,7 +386,7 @@ namespace SharePointListCopy
 			Console.WriteLine("splistcp --single-list \"http://source.server/site/doclib/Forms/AllItems.aspx\" \"http://destination.server/newsite/doclib\" \"Top Parent Folder/folder2\"");
 			Console.WriteLine("splistcp --single-list --verbose --create-site-from-template=\"MyTemplate.stp\" \"http://source.server/site/List Name\" \"http://destination.server/newsite/New List\"");
 			Console.WriteLine("");
-			Console.WriteLine("Note: this tool must be run on the destination SharePoint 2007 server, using an account that has read access to the remote site, and full control on the destination site.");
+			Console.WriteLine("Note: this tool must be run on the destination SharePoint 2007 server, using an account that has read access to the remote site, and full control on the destination site. May also require changes on destination server as per http://support.microsoft.com/kb/896861.");
 		}
 	}
 }
