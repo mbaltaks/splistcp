@@ -878,6 +878,48 @@ namespace SharePointListCopy
 		}
 
 
+		public SPFolder FindFolderFromPath(SPFolder folder, string path)
+		{
+			if (path.Length < 1)
+			{
+				return folder;
+			}
+			string this_folder = path;
+			string below = "";
+			int i = path.IndexOf("/");
+			if (i == 0)
+			{
+				this_folder = path.Substring(1);
+				i = path.IndexOf("/", 1);
+				if (i > 0)
+				{
+					below = path.Substring(i + 1);
+				}
+			}
+			else if (i > 0)
+			{
+				this_folder = path.Substring(0, i);
+				below = path.Substring(i + 1);
+			}
+			SPFolder this_level;
+			try
+			{
+				this_level = folder.SubFolders[this_folder];
+				//System.Console.Out.WriteLine("");
+				//System.Console.Out.WriteLine("Folder " + this_folder + " already exists.");
+			}
+			catch
+			{
+				return null;
+			}
+			if (below.Length > 0)
+			{
+				return FindFolderFromPath(this_level, below);
+			}
+			return this_level;
+		}
+
+
 		public void Close()
 		{
 			if (web != null)

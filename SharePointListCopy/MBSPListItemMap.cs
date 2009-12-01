@@ -166,9 +166,6 @@ namespace SharePointListCopy
 						}
 						if (listRelativeFileURL.Contains("/"))
 						{
-							Console.WriteLine("We have a sub folder!");
-							Console.WriteLine("difference: " + listRelativeFileURL);
-							Console.WriteLine("");
 							newItem.hasSubItems = true;
 							int pos = listRelativeFileURL.IndexOf("/");
 							if (pos > 0)
@@ -512,8 +509,37 @@ namespace SharePointListCopy
 			System.IO.Directory.CreateDirectory(Program.tempFilePath);
 			foreach (MBSPListItemMap subItem in subItems)
 			{
+				bool copyItem = true;
 				SPListItem newItem = null;
-				if (Program.avoidDuplicates)
+				if (Program.onlyAddNewFilesInDoclibs)
+				{
+					Console.WriteLine("");
+					if (listMap.destList.BaseTemplate.Equals(SPListTemplateType.DocumentLibrary)
+						|| listMap.destList.BaseTemplate.Equals(SPListTemplateType.PictureLibrary)
+						)
+					{
+						SPFolder f = listMap.FindFolderFromPath(listMap.destList.RootFolder, destFolderPath);
+						if (!f.Equals(null))
+						{
+							SPFileCollection files = f.Files;
+							try
+							{
+								SPFile file = files[f.ServerRelativeUrl + "/" + subItem.itemName];
+								Console.WriteLine("Skipping existing file " + subItem.itemName);
+								copyItem = false;
+							}
+							catch
+							{
+							}
+						}
+					}
+					else
+					{
+						Console.WriteLine("Skipping this list because --only-add-new-files-in-doclibs works only for document and picture libraries.");
+						copyItem = false;
+					}
+				}
+				if (Program.avoidDuplicates && copyItem)
 				{
 					foreach (SPListItem item in listMap.destList.Items)
 					{
@@ -530,7 +556,7 @@ namespace SharePointListCopy
 						}
 					}
 				}
-				if (newItem == null)
+				if (newItem == null && copyItem)
 				{
 					if (subItem.hasFile)
 					{

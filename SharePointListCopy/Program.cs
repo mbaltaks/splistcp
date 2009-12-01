@@ -62,6 +62,7 @@ namespace SharePointListCopy
 		public static bool forceVersioning = false;
 		public static bool versionsUseUSDates = false;
 		public static bool preferFolderMetadata = false;
+		public static bool onlyAddNewFilesInDoclibs = false;
 		//public static string logFilePath = "";
 		//public static StreamWriter logFile;
 
@@ -155,6 +156,7 @@ namespace SharePointListCopy
 			options.Add("--force-versioning", "Ensure that versioning is turned on for the destination list(s), no matter what setting the original list(s) used.");
 			options.Add("--versions-use-us-dates", "Specify that the date format for versions is in US date format.");
 			options.Add("--prefer-folder-metadata", "Use the method of finding document library contents that will find folder metadata, but which depends on what is available in the default view.");
+			options.Add("--only-add-new-files-in-doclibs", "Only look at document libraries and picture libraries, and only copy files that don't exist in the destination.");
 			//options.Add("--doclibs-only", "");
 			//options.Add("--lists-only", "");
 
@@ -223,6 +225,10 @@ namespace SharePointListCopy
 			if (optionValues.ContainsKey("--prefer-folder-metadata"))
 			{
 				preferFolderMetadata = true;
+			}
+			if (optionValues.ContainsKey("--only-add-new-files-in-doclibs"))
+			{
+				onlyAddNewFilesInDoclibs = true;
 			}
 			if (optionValues.ContainsKey("--single-list"))
 			{
