@@ -881,12 +881,22 @@ namespace SharePointListCopy
 					System.Console.Out.WriteLine("");
 					System.Console.Out.WriteLine("Creating folder " + this_folder);
 				}
-				this_level = folder.SubFolders.Add(this_folder);
-				this_level.Item["Created"] = created;
-				this_level.Item["Modified"] = modified;
-				this_level.Item["Author"] = MBSPSiteMap.EnsureAUserExists(author, "", folder.ParentWeb);
-				this_level.Item["Modified By"] = MBSPSiteMap.EnsureAUserExists(author, "", folder.ParentWeb);
-				this_level.Item.Update();
+				try
+				{
+					this_level = folder.SubFolders.Add(this_folder);
+					//this_level = folder.SubFolders.Add("splistcptempnewfolder");
+					//this_level.Item["Name"] = this_folder;
+					this_level.Item["Created"] = created;
+					this_level.Item["Modified"] = modified;
+					this_level.Item["Author"] = MBSPSiteMap.EnsureAUserExists(author, "", folder.ParentWeb);
+					this_level.Item["Modified By"] = MBSPSiteMap.EnsureAUserExists(author, "", folder.ParentWeb);
+					this_level.Item.Update();
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine("Unable to create folder " + this_folder);
+					throw e;
+				}
 			}
 			if (below.Length > 0)
 			{
