@@ -519,7 +519,7 @@ namespace SharePointListCopy
 						)
 					{
 						SPFolder f = listMap.FindFolderFromPath(listMap.destList.RootFolder, subItem.destFolderPath);
-						if (!f.Equals(null))
+						if (f.Exists)
 						{
 							if (!subItem.hasSubItems)
 							{
