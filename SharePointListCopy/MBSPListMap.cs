@@ -123,6 +123,16 @@ namespace SharePointListCopy
 
 		public bool Init()
 		{
+			if (Program.onlyAddNewFilesInDoclibs)
+			{
+				if (!(sourceListType.Equals(SPListTemplateType.DocumentLibrary)
+					|| sourceListType.Equals(SPListTemplateType.PictureLibrary))
+					)
+				{
+					Console.WriteLine("Skipping this list because --only-add-new-files-in-doclibs only allows document and picture libraries.");
+					return false;
+				}
+			}
 			web = GetSPWeb(destSiteURL);
 			if (web == null)
 			{
@@ -796,7 +806,15 @@ namespace SharePointListCopy
 					topLevel.GetMoreSubItems(listService, sourceListName, sourceListNameURL);
 				}
 				topLevel.CopyData(sourceSiteURL, sourceListNameURL);
-				MBSPListViewMap v = new MBSPListViewMap(this);
+				if (Program.onlyAddNewFilesInDoclibs)
+				{
+					Console.WriteLine("");
+					Console.WriteLine("Skipping copy of Views.");
+				}
+				else
+				{
+					MBSPListViewMap v = new MBSPListViewMap(this);
+				}
 				return true;
 			}
 			return false;

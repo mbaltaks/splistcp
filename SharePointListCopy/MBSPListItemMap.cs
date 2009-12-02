@@ -518,25 +518,37 @@ namespace SharePointListCopy
 						|| listMap.destList.BaseTemplate.Equals(SPListTemplateType.PictureLibrary)
 						)
 					{
-						SPFolder f = listMap.FindFolderFromPath(listMap.destList.RootFolder, destFolderPath);
+						SPFolder f = listMap.FindFolderFromPath(listMap.destList.RootFolder, subItem.destFolderPath);
 						if (!f.Equals(null))
 						{
-							SPFileCollection files = f.Files;
-							try
+							if (!subItem.hasSubItems)
 							{
-								SPFile file = files[f.ServerRelativeUrl + "/" + subItem.itemName];
-								Console.WriteLine("Skipping existing file " + subItem.itemName);
-								copyItem = false;
-							}
-							catch
-							{
+								SPFileCollection files = f.Files;
+								try
+								{
+									string[] paths = new string[] { f.ServerRelativeUrl, 
+									subItem.destFolderPath, subItem.itemName };
+									string fileURL = MBSPListMap.CombinePaths(paths);
+									// Files in folders are still not being found.
+									//Console.WriteLine("Looking for existance of /" + fileURL + " in " + files.Folder.ServerRelativeUrl);
+									//SPFile file = files["/" + fileURL];
+									//Console.WriteLine("Found /" + fileURL + " in " + files.Folder.ServerRelativeUrl);
+									//Console.WriteLine("");
+									Console.WriteLine("Looking for existance of " + subItem.itemName + " in " + files.Folder.ServerRelativeUrl);
+									SPFile file2 = files[subItem.itemName];
+									Console.WriteLine("Skipping existing file:  " + subItem.itemName + " in " + files.Folder.ServerRelativeUrl);
+									copyItem = false;
+								}
+								catch
+								{
+								}
 							}
 						}
 					}
 					else
 					{
 						Console.WriteLine("Skipping this list because --only-add-new-files-in-doclibs works only for document and picture libraries.");
-						copyItem = false;
+						return;
 					}
 				}
 				if (Program.avoidDuplicates && copyItem)

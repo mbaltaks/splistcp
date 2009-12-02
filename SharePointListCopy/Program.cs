@@ -96,9 +96,11 @@ namespace SharePointListCopy
 					}
 					else
 					{
-						listMap.Init();
-						listIDs[listMap.SourceListID()] = listMap.DestListID();
-						listMap.Copy();
+						if (listMap.Init())
+						{
+							listIDs[listMap.SourceListID()] = listMap.DestListID();
+							listMap.Copy();
+						}
 					}
 					listMap.Close();
 				}
@@ -106,9 +108,11 @@ namespace SharePointListCopy
 				{
 					MBSPListMap listMap;
 					listMap = new MBSPListMap(list[0], list[1], list[2], replacements);
-					listMap.Init();
-					listIDs[listMap.SourceListID()] = listMap.DestListID();
-					listMap.Copy();
+					if (listMap.Init())
+					{
+						listIDs[listMap.SourceListID()] = listMap.DestListID();
+						listMap.Copy();
+					}
 					listMap.Close();
 				}
 			}
