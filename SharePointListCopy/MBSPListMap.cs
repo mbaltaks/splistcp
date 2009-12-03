@@ -883,9 +883,24 @@ namespace SharePointListCopy
 				}
 				try
 				{
-					this_level = folder.SubFolders.Add(this_folder);
+					// Failed attempt to improve folder creation.
 					//this_level = folder.SubFolders.Add("splistcptempnewfolder");
 					//this_level.Item["Name"] = this_folder;
+
+					// I've posted about this crap at:
+					// http://stackoverflow.com/questions/1040804
+					//string fullFolderURL = folder.ParentWeb.Url + folder.ServerRelativeUrl;
+					//SPList list = folder.ParentWeb.Lists.GetList(folder.ParentListId, true);
+					//SPListItem newFolder = list.Items.Add(fullFolderURL, SPFileSystemObjectType.Folder, this_folder);
+					//newFolder.Update();
+					//this_level = newFolder.Folder;
+
+					// Original code to create folders, not recommended for WSS 3.0 apparently:
+					// http://vspug.com/stevekay72/2007/08/16/create-sub-folders-in-lists-programmatically/
+					// Leaving this in for now, since early failure is better than creating folders
+					// I don't want as the newer code above will do.
+					this_level = folder.SubFolders.Add(this_folder);
+
 					this_level.Item["Created"] = created;
 					this_level.Item["Modified"] = modified;
 					this_level.Item["Author"] = MBSPSiteMap.EnsureAUserExists(author, "", folder.ParentWeb);
