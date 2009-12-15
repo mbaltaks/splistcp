@@ -317,6 +317,10 @@ namespace SharePointListCopy
 			if (index <= args.Length)
 			{
 				source = args[index];
+				if (source.EndsWith("/"))
+				{
+					source = source.Substring(0, source.Length - 1);
+				}
 			}
 			if (args.Length > (index + 1))
 			{
