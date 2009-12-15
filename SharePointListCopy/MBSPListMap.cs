@@ -68,6 +68,7 @@ namespace SharePointListCopy
 		MBSPListItemMap topLevel;
 		Hashtable replacements;
 		bool hasLookupFields = false;
+		bool dependsOnMissingLists = false;
 		XmlNode sourceListNode = null;
 
 
@@ -169,7 +170,11 @@ namespace SharePointListCopy
 				}
 			}
 			// We need to populate listFields even if the list already exists.
-			AddFieldsFromXML(destList, sourceListNode.OuterXml.ToString(), listFields, newListFields, reverseListFields);
+			bool r = AddFieldsFromXML(destList, sourceListNode.OuterXml.ToString(), listFields, newListFields, reverseListFields);
+			if (r.Equals(false))
+			{
+				return r;
+			}
 			try
 			{
 				XmlNode destListNode = GetListMetadata(destSiteURL,
@@ -530,7 +535,7 @@ namespace SharePointListCopy
 		And - if the display name is Type, the field we were looking for 
 		(a user created Type field) does not exist, but only if we're creating the list.
 		*/
-		void AddFieldFromXML(SPList list, XmlNode node, Hashtable listFields,
+		bool AddFieldFromXML(SPList list, XmlNode node, Hashtable listFields,
 			Hashtable newListFields, Hashtable reverseListFields)
 		{
 			string newInternalName = "";
@@ -546,7 +551,7 @@ namespace SharePointListCopy
 			// Some fields should just not be copied.
 			if (displayName.Length < 1)
 			{
-				return;
+				return true;
 			}
 			if (destListType.Equals(SPListTemplateType.PictureLibrary)
 				|| destListType.Equals(SPListTemplateType.DocumentLibrary))
@@ -557,14 +562,14 @@ namespace SharePointListCopy
 					|| displayName.Equals("Name")
 					)
 				{
-					return;
+					return true;
 				}
 			}
 			if (destListType.Equals(SPListTemplateType.DiscussionBoard))
 			{
 				if (internalName.Equals("Ordering"))
 				{
-					return;
+					return true;
 				}
 			}
 			if (destListType.Equals(SPListTemplateType.IssueTracking))
@@ -574,7 +579,7 @@ namespace SharePointListCopy
 					|| internalName.Equals("RemoveRelatedID")
 					|| internalName.Equals("LinkIssueIDNoMenu"))
 				{
-					return;
+					return true;
 				}
 			}
 
@@ -713,8 +718,21 @@ namespace SharePointListCopy
 					else
 					{
 						string listName = MBSPSiteMap.GetListNameFromID(sourceSiteURL, node.Attributes["List"].Value);
-						string id = list.ParentWeb.Lists[listName].ID.ToString();
-						node.Attributes["List"].Value = id;
+						try
+						{
+							string id = list.ParentWeb.Lists[listName].ID.ToString();
+							node.Attributes["List"].Value = id;
+						}
+						catch
+						{
+							// If the list with the field this is trying to reference doesn't yet exist,
+							// leave this list till even later.
+							Console.WriteLine("");
+							Console.WriteLine("*** WARNING: List " + list.Title + " depends on another list (" + listName + ") that is missing or not yet copied, so this half done list will be removed. This list might not be copied in this run.");
+							list.Delete();
+							dependsOnMissingLists = true;
+							return false;
+						}
 					}
 				}
 				newInternalName = list.Fields.AddFieldAsXml(node.OuterXml);
@@ -724,10 +742,11 @@ namespace SharePointListCopy
 					reverseNewListFields.Add(displayName, newInternalName);
 				}
 			}
+			return true;
 		}
 
 
-		public void AddFieldsFromXML(SPList list, string xml, Hashtable listFields,
+		public bool AddFieldsFromXML(SPList list, string xml, Hashtable listFields,
 			Hashtable newListFields, Hashtable reverseListFields)
 		{
 			XmlReader xmlR = XmlReader.Create(new StringReader(xml));
@@ -735,10 +754,16 @@ namespace SharePointListCopy
 			XmlNode node = doc.ReadNode(xmlR);
 			XmlNode fields = node.FirstChild;
 			SetListKeyFieldName(fields);
+			bool r = true;
 			foreach (XmlNode child in fields)
 			{
-				this.AddFieldFromXML(list, child, listFields, newListFields, reverseListFields);
+				r = this.AddFieldFromXML(list, child, listFields, newListFields, reverseListFields);
+				if (r.Equals(false))
+				{
+					return r;
+				}
 			}
+			return true;
 		}
 
 
@@ -1093,6 +1118,12 @@ namespace SharePointListCopy
 		public bool HasLookupFields()
 		{
 			return hasLookupFields;
+		}
+
+
+		public bool DependsOnMissingLists()
+		{
+			return dependsOnMissingLists;
 		}
 
 

@@ -49,6 +49,7 @@ namespace SharePointListCopy
 		static Hashtable optionValues = new Hashtable();
 		static ArrayList lists = new ArrayList();
 		static ArrayList redoLists = new ArrayList();
+		static ArrayList redoLists2 = new ArrayList();
 		static Hashtable replacements = new Hashtable();
 		public static bool singleList = false;
 		public static bool createBlankSite = false;
@@ -101,10 +102,29 @@ namespace SharePointListCopy
 							listIDs[listMap.SourceListID()] = listMap.DestListID();
 							listMap.Copy();
 						}
+						else if (listMap.DependsOnMissingLists())
+						{
+							redoLists.Add(list);
+						}
 					}
 					listMap.Close();
 				}
 				foreach (string[] list in redoLists)
+				{
+					MBSPListMap listMap;
+					listMap = new MBSPListMap(list[0], list[1], list[2], replacements);
+					if (listMap.Init())
+					{
+						listIDs[listMap.SourceListID()] = listMap.DestListID();
+						listMap.Copy();
+					}
+					else if (listMap.DependsOnMissingLists())
+					{
+						redoLists2.Add(list);
+					}
+					listMap.Close();
+				}
+				foreach (string[] list in redoLists2)
 				{
 					MBSPListMap listMap;
 					listMap = new MBSPListMap(list[0], list[1], list[2], replacements);
