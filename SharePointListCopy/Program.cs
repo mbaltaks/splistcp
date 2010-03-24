@@ -95,6 +95,10 @@ namespace SharePointListCopy
 						}
 						redoLists.Add(list);
 					}
+					else if (listMap.IsUnsupportedListType())
+					{
+						Console.WriteLine("WARNING: List " + listMap.GetSourceListName() + " is a type not supported in SharePoint 2007 and will not be copied.");
+					}
 					else
 					{
 						if (listMap.Init())

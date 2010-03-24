@@ -68,6 +68,7 @@ namespace SharePointListCopy
 		MBSPListItemMap topLevel;
 		Hashtable replacements;
 		bool hasLookupFields = false;
+		bool isUnsupportedListType = false;
 		bool dependsOnMissingLists = false;
 		XmlNode sourceListNode = null;
 
@@ -104,6 +105,12 @@ namespace SharePointListCopy
 				Console.WriteLine("Problem accessing the source SharePoint list web service at " + sourceSiteURL + listServiceURL);
 				Console.WriteLine(e.Message);
 				return;
+			}
+
+			if (sourceListType == SPListTemplateType.Agenda)
+			{
+				// Trying to add this list type to the SPWeb only returns "Invalid list template."
+				isUnsupportedListType = true;
 			}
 
 			XmlNamespaceManager nsmgr = new XmlNamespaceManager(sourceListNode.OwnerDocument.NameTable);
@@ -1061,8 +1068,8 @@ namespace SharePointListCopy
 					return SPListTemplateType.CustomGrid;
 				case "200":
 					return SPListTemplateType.Meetings;
-				//case "201":
-				//	return SPListTemplateType.Agenda;
+				case "201":
+					return SPListTemplateType.Agenda;
 				//case "202":
 				//	return SPListTemplateType.MeetingUser;
 				case "204":
@@ -1118,6 +1125,12 @@ namespace SharePointListCopy
 		public bool HasLookupFields()
 		{
 			return hasLookupFields;
+		}
+
+
+		public bool IsUnsupportedListType()
+		{
+			return isUnsupportedListType;
 		}
 
 
