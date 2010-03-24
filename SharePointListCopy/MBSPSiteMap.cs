@@ -379,15 +379,23 @@ namespace SharePointListCopy
 			foreach (SharePointSiteDataWebService._sList list in lists)
 			{
 				source = sourceSiteURLBase + list.DefaultViewUrl;
-				listNameURL = GetListNameURL(source);
-				dest_site = destSiteURL + listNameURL;
-				string[] bits = { source, dest_site, dest_path };
-				if (Program.beVerbose)
+				if (source.Equals(sourceSiteURLBase))
 				{
 					Console.WriteLine("");
-					Console.WriteLine("Adding site list: " + bits[0] + " copying to " + bits[1]);
+					Console.WriteLine("WARNING: Skipping a zombie list.");
 				}
-				r.Add(bits);
+				else
+				{
+					listNameURL = GetListNameURL(source);
+					dest_site = destSiteURL + listNameURL;
+					string[] bits = { source, dest_site, dest_path };
+					if (Program.beVerbose)
+					{
+						Console.WriteLine("");
+						Console.WriteLine("Adding site list: " + bits[0] + " copying to " + bits[1]);
+					}
+					r.Add(bits);
+				}
 			}
 			return r;
 		}
