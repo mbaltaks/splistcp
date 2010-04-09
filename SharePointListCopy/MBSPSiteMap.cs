@@ -367,6 +367,8 @@ namespace SharePointListCopy
 				endOfFQDN = sourceSiteURL.Length;
 			}
 			string sourceSiteURLBase = sourceSiteURL.Substring(0, endOfFQDN);
+			sourceSiteURLBase = sourceSiteURLBase.ToLower(); // Upper case in the source host name causes a crash in Windows dlls.
+			destSiteURL = Program.lowercaseURLHostname(destSiteURL);
 			if (!destSiteURL.EndsWith("/"))
 			{
 				destSiteURL += "/";

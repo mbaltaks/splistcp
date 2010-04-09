@@ -321,6 +321,7 @@ namespace SharePointListCopy
 			if (index <= args.Length)
 			{
 				source = args[index];
+				source = lowercaseURLHostname(source);
 				if (source.EndsWith("/"))
 				{
 					source = source.Substring(0, source.Length - 1);
@@ -329,6 +330,7 @@ namespace SharePointListCopy
 			if (args.Length > (index + 1))
 			{
 				dest_site = args[++index];
+				dest_site = lowercaseURLHostname(dest_site);
 			}
 			if (args.Length > (index + 1))
 			{
@@ -374,7 +376,9 @@ namespace SharePointListCopy
 					if (!(line.StartsWith("#") || line.Length == 0))
 					{
 						string source = line.Substring(0, line.IndexOf(separator));
+						source = lowercaseURLHostname(source);
 						string dest_site = line.Substring(line.IndexOf(separator) + separator.Length);
+						dest_site = lowercaseURLHostname(dest_site);
 						string dest_path = "";
 						if (dest_site.IndexOf(separator) > -1)
 						{
@@ -405,6 +409,29 @@ namespace SharePointListCopy
 				creds = System.Net.CredentialCache.DefaultCredentials;
 			}
 			return creds;
+		}
+
+
+		// Uppercase letters in a host name case major issues in some Windows dlls.
+		// In the source hostname we see stack overflows, in the destination we
+		// see duplicate child sites created with the same name as the parent.
+		public static string lowercaseURLHostname(string url)
+		{
+			int startOfFQDN = url.IndexOf("//") + 2;
+			int endOfFQDN = url.IndexOf("/", startOfFQDN);
+			string urlPath = "";
+			if (endOfFQDN.Equals(-1))
+			{
+				endOfFQDN = url.Length;
+			}
+			else
+			{
+				urlPath = url.Substring(endOfFQDN, url.Length - endOfFQDN);
+			}
+			string urlBase = url.Substring(0, endOfFQDN);
+			urlBase = urlBase.ToLower();
+			string newUrl = urlBase + urlPath;
+			return newUrl;
 		}
 
 
