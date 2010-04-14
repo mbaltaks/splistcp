@@ -107,9 +107,11 @@ namespace SharePointListCopy
 				return;
 			}
 
-			if (sourceListType == SPListTemplateType.Agenda)
+			if (sourceListType == SPListTemplateType.Agenda
+				|| sourceListType == SPListTemplateType.MeetingUser
+				|| sourceListType == SPListTemplateType.MeetingObjective)
 			{
-				// Trying to add this list type to the SPWeb only returns "Invalid list template."
+				// Trying to add these list types to the SPWeb only returns "Invalid list template."
 				isUnsupportedListType = true;
 			}
 
@@ -1070,8 +1072,8 @@ namespace SharePointListCopy
 					return SPListTemplateType.Meetings;
 				case "201":
 					return SPListTemplateType.Agenda;
-				//case "202":
-				//	return SPListTemplateType.MeetingUser;
+				case "202":
+					return SPListTemplateType.MeetingUser;
 				case "204":
 					return SPListTemplateType.Decision;
 				case "207":
