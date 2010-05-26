@@ -229,7 +229,25 @@ namespace SharePointListCopy
 		{
 			listService.Url = sourceSiteURL + listServiceURL;
 			listService.Credentials = Program.getSourceCredentials();
-			XmlNode lists = listService.GetListCollection();
+			XmlNode lists = null;
+			try
+			{
+				lists = listService.GetListCollection();
+			}
+			catch (Exception e)
+			{
+				// Try just one level up for these strange SP2003 lists that live nowhere.
+				if (e.Message.Equals("The request failed with HTTP status 404: Not Found."))
+				{
+					sourceSiteURL = sourceSiteURL.Substring(0, sourceSiteURL.LastIndexOf("/"));
+					listService.Url = sourceSiteURL + listServiceURL;
+					lists = listService.GetListCollection();
+				}
+				else
+				{
+					throw e;
+				}
+			}
 			foreach (XmlNode child in lists.ChildNodes)
 			{
 				string name = MBSPSiteMap.GetListNameURL(child.Attributes["DefaultViewUrl"].Value.ToString());
