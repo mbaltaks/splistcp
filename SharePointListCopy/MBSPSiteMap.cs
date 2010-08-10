@@ -419,5 +419,18 @@ namespace SharePointListCopy
 			}
 			return "";
 		}
+
+
+		public static string XMLTagContents(string xml, string tagName)
+		{
+			string tag = "<" + tagName + ">";
+			string endTag = "</" + tagName + ">";
+			int tagPos = xml.IndexOf(tag);
+			int endTagPos = xml.IndexOf(endTag);
+			int startPos = tagPos + tag.Length;
+			int tagContentsLength = xml.Length - (startPos + (xml.Length - endTagPos));
+			string tagContents = xml.Substring(startPos, tagContentsLength);
+			return tagContents;
+		}
 	}
 }

@@ -97,7 +97,7 @@ namespace SharePointListCopy
 					}
 					else if (listMap.IsUnsupportedListType())
 					{
-						Console.WriteLine("WARNING: List " + listMap.GetSourceListName() + " is a type not supported in SharePoint 2007 and will not be copied.");
+						Console.WriteLine("WARNING: List " + listMap.GetSourceListName() + " is a type that cannot yet be copied by this software.");
 					}
 					else
 					{

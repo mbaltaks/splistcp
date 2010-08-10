@@ -44,8 +44,13 @@ namespace SharePointListCopy
 					Console.WriteLine("");
 				}
 				if (listType.Equals(SPListTemplateType.DocumentLibrary)
-					&& (s.Attributes["Url"].Value.ToString().EndsWith("/Forms/WebFldr.aspx")
-					|| s.Attributes["DisplayName"].Value.ToString().Equals("All Documents")))
+					&&
+					(
+						(s.Attributes["Url"].Value.ToString().EndsWith("/Forms/WebFldr.aspx"))
+						|| (s.Attributes["DisplayName"].Value.ToString().Equals("All Documents"))
+//						|| (s.Attributes["DisplayName"].Value.ToString().Equals(aListMap.GetSourceListName()))
+					)
+					)
 				{
 					continue;
 				}
@@ -82,7 +87,12 @@ namespace SharePointListCopy
 					continue;
 				}
 				if (listType.Equals(SPListTemplateType.Announcements)
-					&& (s.Attributes["DisplayName"].Value.ToString().Equals("All Items")))
+					&&
+					(
+						(s.Attributes["DisplayName"].Value.ToString().Equals("All Items"))
+//						|| (s.Attributes["DisplayName"].Value.ToString().Equals(aListMap.GetSourceListName()))
+					)
+					)
 				{
 					continue;
 				}
@@ -91,6 +101,13 @@ namespace SharePointListCopy
 					// There are only three views, and they can't be changed or added to.
 					continue;
 				}
+				/*
+				if (listType.Equals(SPListTemplateType.IssueTracking)
+					&& (s.Attributes["DisplayName"].Value.ToString().Equals(aListMap.GetSourceListName())))
+				{
+					continue;
+				}
+				*/
 				if (Program.beVerbose)
 				{
 					Console.WriteLine("Copying View " + s.Attributes["DisplayName"].Value.ToString());
